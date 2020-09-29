@@ -48,14 +48,15 @@ void setup()
     Serial.println(__TIME__);
 
     lcd.setup();
-
-    snprintf(strbuf, sizeof strbuf, "RELEASE JOYSTICK");
+    // ignore the wchar_t / %S warning, arduino uses %S for Progmem instead
+    snprintf(strbuf, sizeof strbuf, "%S", romTexts[5]);
     lcd.print(0, 0, strbuf);
 
     for (int i = 4; i > 0; i--)
     {
         Serial.println(i);
-        snprintf(strbuf, sizeof strbuf, "Calib start in %1u", i);
+        // ignore the wchar_t / %S warning, arduino uses %S for Progmem instead
+        snprintf(strbuf, sizeof strbuf, "%.14S %1u", romTexts[6], i);
         lcd.print(1, 0, strbuf);
         lcd.lighton();
         delay(800);
@@ -91,8 +92,8 @@ void setup()
         {
             r = analogRead(stickPins[i]);
             c += r;
-
-            snprintf(strbuf, sizeof strbuf, "Stick Center Cal");
+            // ignore the wchar_t / %S warning, arduino uses %S for Progmem instead
+            snprintf(strbuf, sizeof strbuf, "%S", romTexts[4]);
             lcd.print(0, 0, strbuf);
             snprintf(strbuf, sizeof strbuf, "Axis %1u/%2u V=%4u", i, j, r);
             lcd.print(1, 0, strbuf);
@@ -143,9 +144,11 @@ void setup()
     // Display start
 
     lcd.clear();
+    // ignore the wchar_t / %S warning, arduino uses %S for Progmem instead
     snprintf(strbuf, sizeof strbuf, "%S", romTexts[2]);
     lcd.print(0, 0, strbuf);
 
+    // ignore the wchar_t / %S warning, arduino uses %S for Progmem instead
     snprintf(strbuf, sizeof strbuf, "%S", romTexts[3]);
     lcd.print(1, 0, strbuf);
 
@@ -389,12 +392,14 @@ void mopa_stick()
 
     enblStep = false; // we do drive logic ourselves, so keep the interrupt disabled
 
-    if (nowMicroTick - nextMicroTick < 0)
+    nowMicroTick = micros();
+
+    if (nextMicroTick > nowMicroTick )
     {
         return;
     }
 
-    nextMicroTick = nowMicroTick + 1000; // this is more precise than the coarse millis()
+    nextMicroTick = nowMicroTick + 200; // this is more precise than the coarse millis()
 
     // always clear the steps pins
 
@@ -513,10 +518,12 @@ void mopa_oneway_trig()
         toldyou = true;
         if (posCursor == 0)
         {
+            // ignore the wchar_t / %S warning, arduino uses %S for Progmem instead
             snprintf(strbuf, sizeof strbuf, "Start %c  Press B", 3);
         }
         else
         {
+            // ignore the wchar_t / %S warning, arduino uses %S for Progmem instead
             snprintf(strbuf, sizeof strbuf, "Return %c Press B", 3);
         }
         lcd.print(1, 0, strbuf);
@@ -563,7 +570,7 @@ void gotoNextTarget()
 
     if (setTargetToPositionItem(posCursor))
     {
-        Serial.print("Moving to new target item ");
+        Serial.print(F("Moving to new target item "));
         Serial.println(posCursor);
 
         recalculateDelay();
@@ -882,8 +889,8 @@ Show the output for the current panel mode in the lower line
 */
 void disp_panelmode()
 {
-
-    snprintf(strbuf, sizeof strbuf, "%.16S", menuTexts[panelMode]); // %s takes char from RAM, %S takes wchar_t from ROM
+    // ignore the wchar_t / %S warning, arduino uses %S for Progmem instead
+    snprintf(strbuf, sizeof strbuf, "%S", menuTexts[panelMode]);
     lcd.print(0, 0, strbuf);
 
     switch (panelMode)
@@ -892,12 +899,15 @@ void disp_panelmode()
         snprintf(strbuf, sizeof strbuf, "Step Delay %05u", stepDelay);
         break;
     case PM_STARTSET:
+        // ignore the wchar_t / %S warning, arduino uses %S for Progmem instead
         snprintf(strbuf, sizeof strbuf, "%S", romTexts[0]);
         break;
     case PM_ENDSET:
+        // ignore the wchar_t / %S warning, arduino uses %S for Progmem instead
         snprintf(strbuf, sizeof strbuf, "%S", romTexts[1]);
         break;
     case PM_MOPASET:
+        // ignore the wchar_t / %S warning, arduino uses %S for Progmem instead
         snprintf(strbuf, sizeof strbuf, "Mode %.11S", motionPatternTexts[motionPattern]);
         break;
     }

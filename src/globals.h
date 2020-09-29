@@ -1,4 +1,5 @@
 #include "Arduino.h"
+#include <avr/pgmspace.h>
 
 #define MY_OCR_DIVIDER 2 // Base trigger of output compare register, i.e. every N increments of Timer1 do the interrupt routine with speed/accel/step evaluation
 // if it's too low, it'll cause interrupt overlaps and skips - experiment with this and the prescaler value in the interrupt definition!
@@ -152,11 +153,11 @@ byte buttonState[] = {0, 0, 0}; // Buttons 0-2
 /* motion patterns */
 
 byte motionPattern = 0;
-const wchar_t motionPatternTexts[][12] PROGMEM = { // wchar and the L"text" is needed for using %S in snprintf later
-    L"   PINGPONG",
-    L"ONEWAY TRIG",
-    L"ONEWAY REPE",
-    L"STICK DRIVE"};
+PROGMEM const char motionPatternTexts[][12] = { 
+    "   PINGPONG",
+    "ONEWAY TRIG",
+    "ONEWAY REPE",
+    "STICK DRIVE"};
 #define MOPA_PINGPONG 0      // default behavior: run back and forth between A and B at preset speed
 #define MOPA_ONEWAY 1        // runs from A to B with the preset speed, waits for button, then returns to A at max speed, waits again
 #define MOPA_ONEWAY_REPEAT 2 // runs to position B with the preset speed, returns to A at max speed, repeats with no interaction
@@ -166,13 +167,13 @@ const wchar_t motionPatternTexts[][12] PROGMEM = { // wchar and the L"text" is n
 
 byte panelMode = 0;
 
-const wchar_t menuTexts[][17] PROGMEM = { // wchar and the L"text" is needed for using %S in snprintf later
-    L"----------------",
-    L"Set Start Pos   ",
-    L"Set End Pos     ",
-    L"Set Motion Mode ",
-    L"Set Step Delay  ",
-    L"Options         "};
+PROGMEM const char menuTexts[][17] = {
+    "----------------",
+    "Set Start Pos   ",
+    "Set End Pos     ",
+    "Set Motion Mode ",
+    "Set Step Delay  ",
+    "Options         "};
 
 #define PM_MAINMENU 0 // Init point, select menu points by rotation knob
 #define PM_STARTSET 1
@@ -183,10 +184,12 @@ const wchar_t menuTexts[][17] PROGMEM = { // wchar and the L"text" is needed for
 
 #define PM_MAX 4 // highest number used in PM_x
 
-const wchar_t romTexts[][17] PROGMEM = { // wchar and the L"text" is needed for using %S in snprintf later
-    L"Exit < T0 > SET ",
-    L"Exit < T1 > SET ",
-    L"CamSlider  ready",
-    L"PRESS MODE/START"
-    
-};
+PROGMEM const char romTexts[][17] = { 
+    "Exit < T0 > SET ", // 0
+    "Exit < T1 > SET ", // 1
+    "CamSlider  ready", // 2
+    "PRESS MODE/START", // 3
+    "Stick Center Cal", // 4
+    "RELEASE JOYSTICK", // 5
+    "Calib start in  ", // 6
+    };
