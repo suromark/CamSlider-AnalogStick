@@ -25,7 +25,7 @@ OPTIONS -> (Click) -> Recalibrate | Reboot
 Button Analog-Top: Start / Stop
 
 Button B:
-While driving in:
+While driving in ... mode:
  STICK DRIVE -> no action
  PINGPONG -> Skip to next target
  ONEWAY -> Return to start

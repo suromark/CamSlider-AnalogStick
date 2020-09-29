@@ -13,7 +13,6 @@ myLCD lcd;
 /* functions */
 
 void initDebug();
-void runLimitfind();
 void runNormal();
 void runBrake();
 void startFromHalt();
@@ -144,10 +143,10 @@ void setup()
     // Display start
 
     lcd.clear();
-    snprintf(strbuf, sizeof strbuf, "CamSlider  ready");
+    snprintf(strbuf, sizeof strbuf, "%S", romTexts[2]);
     lcd.print(0, 0, strbuf);
 
-    snprintf(strbuf, sizeof strbuf, "PRESS MODE/START");
+    snprintf(strbuf, sizeof strbuf, "%S", romTexts[3]);
     lcd.print(1, 0, strbuf);
 
     setUpInterrupt();
@@ -313,46 +312,6 @@ void doInput()
 
 
 
-Search for the MAX position; if found set it temporary to a huge maximum and go for MIN position.
-If MINPOS is found, calculate the difference and set the MAXPOS to it, then switch to normal operation.
- */
-
-void runLimitfind()
-{
-
-    static unsigned long nextShow = 0;
-    if (false)
-    {
-
-        /*
-Scanner Chatter
- */
-
-        if (theTick > nextShow)
-        {
-            if (true)
-            {
-                snprintf(strbuf, sizeof strbuf, "Searching MINPOS");
-            }
-            else
-            {
-                snprintf(strbuf, sizeof strbuf, "Searching MAXPOS");
-            }
-            lcd.print(0, 0, strbuf);
-            nextShow = theTick + SHOW_EVERY_N_MILLIS;
-        }
-
-        enblStep = true;
-    }
-}
-
-/* #####################################################################################################
-
-
-
-
-
-
 Debugging: pingpong all motor channels
  */
 
@@ -430,9 +389,9 @@ void mopa_stick()
 
     enblStep = false; // we do drive logic ourselves, so keep the interrupt disabled
 
-    if (nowMicroTick - nextMicroTick < 0 )
+    if (nowMicroTick - nextMicroTick < 0)
     {
-        return; 
+        return;
     }
 
     nextMicroTick = nowMicroTick + 1000; // this is more precise than the coarse millis()
@@ -924,7 +883,7 @@ Show the output for the current panel mode in the lower line
 void disp_panelmode()
 {
 
-    snprintf(strbuf, sizeof strbuf, "%.16S", menuTexts[panelMode] ); // %s = from RAM, %S = from ROM
+    snprintf(strbuf, sizeof strbuf, "%.16S", menuTexts[panelMode]); // %s takes char from RAM, %S takes wchar_t from ROM
     lcd.print(0, 0, strbuf);
 
     switch (panelMode)
@@ -933,10 +892,10 @@ void disp_panelmode()
         snprintf(strbuf, sizeof strbuf, "Step Delay %05u", stepDelay);
         break;
     case PM_STARTSET:
-        snprintf(strbuf, sizeof strbuf, "Exit < T0 > SET ");
+        snprintf(strbuf, sizeof strbuf, "%S", romTexts[0]);
         break;
     case PM_ENDSET:
-        snprintf(strbuf, sizeof strbuf, "Exit < T1 > SET ");
+        snprintf(strbuf, sizeof strbuf, "%S", romTexts[1]);
         break;
     case PM_MOPASET:
         snprintf(strbuf, sizeof strbuf, "Mode %.11S", motionPatternTexts[motionPattern]);

@@ -182,3 +182,11 @@ const wchar_t menuTexts[][17] PROGMEM = { // wchar and the L"text" is needed for
 #define PM_OPTIONS 5
 
 #define PM_MAX 4 // highest number used in PM_x
+
+const wchar_t romTexts[][17] PROGMEM = { // wchar and the L"text" is needed for using %S in snprintf later
+    L"Exit < T0 > SET ",
+    L"Exit < T1 > SET ",
+    L"CamSlider  ready",
+    L"PRESS MODE/START"
+    
+};
