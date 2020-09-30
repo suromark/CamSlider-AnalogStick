@@ -163,33 +163,38 @@ PROGMEM const char motionPatternTexts[][12] = {
 #define MOPA_ONEWAY_REPEAT 2 // runs to position B with the preset speed, returns to A at max speed, repeats with no interaction
 #define MOPA_STICK 3         // runs to position B with the preset speed, returns to A at max speed, repeats with no interaction
 
-/* Panel Mode */
+/* Main Menu selectable options */
 
-byte panelMode = 0;
-
-PROGMEM const char menuTexts[][17] = {
-    "----------------",
+PROGMEM const char mainmenu_texts[][17] = {
     "Set Start Pos   ",
     "Set End Pos     ",
     "Set Motion Mode ",
     "Set Step Delay  ",
     "Options         "};
 
-#define PM_MAINMENU 0 // Init point, select menu points by rotation knob
-#define PM_STARTSET 1
-#define PM_ENDSET 2
-#define PM_MOPASET 3
-#define PM_DELAYSET 4
-#define PM_OPTIONS 5
+byte mainmenu_option = 0;
 
-#define PM_MAX 4 // highest number used in PM_x
+#define mainmenu_MAX 4 // 0-4
+
+/* Active Panel Mode */
+
+
+#define PM_STARTSET 0
+#define PM_ENDSET 1
+#define PM_MOPASET 2
+#define PM_DELAYSET 3
+#define PM_OPTIONS 4
+#define PM_MAINMENU 5 // Init point, select menu points by rotation knob
+
+byte panelMode = 5;
 
 PROGMEM const char romTexts[][17] = { 
     "Exit < T0 > SET ", // 0
     "Exit < T1 > SET ", // 1
     "CamSlider  ready", // 2
-    "PRESS MODE/START", // 3
+    "< Turn > or Push", // 3
     "Stick Center Cal", // 4
     "RELEASE JOYSTICK", // 5
     "Calib start in  ", // 6
+    "Push to select  ", // 7
     };

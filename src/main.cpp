@@ -26,7 +26,9 @@ void checkEncoder();
 void turnUp();
 void turnDown();
 void multiDebouncer();
-void doInput();
+void doButtonInput();
+void mainmenu_previousoption();
+void mainmenu_nextoption();
 void disp_panelmode();
 byte setTargetToPositionItem(int index); // copy entry $index of positions[] into targetpos, return TRUE if target != position
 void setTargetForBrake();                // shifts targetPosition so that the motor can spin down; avoids immediate motion flipping
@@ -97,7 +99,6 @@ void setup()
             lcd.print(0, 0, strbuf);
             snprintf(strbuf, sizeof strbuf, "Axis %1u/%2u V=%4u", i, j, r);
             lcd.print(1, 0, strbuf);
-            delay(50);
         }
 
         stickCenter[i] = c / 16;
@@ -180,7 +181,7 @@ void loop()
 
     checkEncoder();
 
-    doInput();
+    doButtonInput();
 
     switch (modus)
     {
@@ -270,18 +271,24 @@ void runBrake()
 
 Responses to button presses
 */
-void doInput()
+void doButtonInput()
 {
 
-    // CYCLE flips through the panel options
+    // CYCLE activates the currently selected main menu item, or returns to main menu
 
     if (buttonState[BUTTONSTATE_CYCLE] == BUTTON_PRESS_SHORT)
     {
-        panelMode++;
-        if (panelMode > PM_MAX)
+        switch (panelMode)
         {
-            panelMode = 1;
+        case PM_MAINMENU:
+            panelMode = mainmenu_option;
+            break;
+
+        default:
+            panelMode = PM_MAINMENU;
+            break;
         }
+
         disp_panelmode();
     }
 
@@ -307,7 +314,41 @@ void doInput()
         }
     }
 }
+/* #####################################################################################################
 
+
+
+
+
+
+cycle through main menu items upwards
+ */
+
+void mainmenu_nextoption()
+{
+
+    if (++mainmenu_option > mainmenu_MAX)
+    {
+        mainmenu_option = 0;
+    }
+}
+/* #####################################################################################################
+
+
+
+
+
+
+Cycle through main menu items downward
+ */
+
+void mainmenu_previousoption()
+{
+    if (mainmenu_option-- == 0)
+    {
+        mainmenu_option = mainmenu_MAX;
+    }
+}
 /* #####################################################################################################
 
 
@@ -394,7 +435,7 @@ void mopa_stick()
 
     nowMicroTick = micros();
 
-    if (nextMicroTick > nowMicroTick )
+    if (nextMicroTick > nowMicroTick)
     {
         return;
     }
@@ -803,6 +844,10 @@ void turnUp()
 {
     switch (panelMode)
     {
+    case PM_MAINMENU:
+        mainmenu_previousoption();
+        break;
+
     case PM_DELAYSET:
         stepDelay = stepDelay + stepDelayStep;
         recalculateDelay();
@@ -842,6 +887,9 @@ void turnDown()
 {
     switch (panelMode)
     {
+    case PM_MAINMENU:
+        mainmenu_nextoption();
+        break;
     case PM_DELAYSET:
         stepDelay = stepDelay - (stepDelay >= stepDelayStep ? stepDelayStep : 0);
         recalculateDelay();
@@ -889,12 +937,16 @@ Show the output for the current panel mode in the lower line
 */
 void disp_panelmode()
 {
-    // ignore the wchar_t / %S warning, arduino uses %S for Progmem instead
-    snprintf(strbuf, sizeof strbuf, "%S", menuTexts[panelMode]);
-    lcd.print(0, 0, strbuf);
+
+    // top line may be occupied by info display so the
+    // lower line shows either option selector or option's items
 
     switch (panelMode)
     {
+    case PM_MAINMENU:
+        snprintf(strbuf, sizeof strbuf, "%S", mainmenu_texts[mainmenu_option]);
+        break;
+
     case PM_DELAYSET:
         snprintf(strbuf, sizeof strbuf, "Step Delay %05u", stepDelay);
         break;
@@ -910,6 +962,8 @@ void disp_panelmode()
         // ignore the wchar_t / %S warning, arduino uses %S for Progmem instead
         snprintf(strbuf, sizeof strbuf, "Mode %.11S", motionPatternTexts[motionPattern]);
         break;
+    default:
+        snprintf(strbuf, sizeof strbuf, "%c%S", 3, romTexts[7]);
     }
     lcd.print(1, 0, strbuf);
 }
