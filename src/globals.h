@@ -44,7 +44,7 @@ extern uint8_t outPins[]; // make global
 #define MY_STICK_USED 3  // how many analog inputs to use
 #define MY_STICK_DEAD 64 // size of the no-motion dead zone around the center; 7 % left/right
 
-uint8_t stickPins[] = {A2, A1, A0}; // Mapping of inputs to Axis X, Y, Z
+uint8_t stickPins[] = {A1, A2, A0}; // Mapping of inputs to Axis X, Y, Z
 extern uint8_t stickPins[];         // make global
 
 int stickInputRaw[MY_STICK_USED];  // storage for raw analog values read

@@ -126,7 +126,7 @@ void setup()
 
     /* set some default values */
 
-    stepDelay = 10;
+    stepDelay = 20;
     tickerLimit = stepDelay;
     tickerNow = 0;
     modus = MODE_STOP;
@@ -281,9 +281,23 @@ void doButtonInput()
         switch (panelMode)
         {
         case PM_MAINMENU:
-            panelMode = mainmenu_option;
-            break;
 
+            switch (mainmenu_option)
+            {
+            case PM_STARTSET:
+                currentPosToStorage(0);
+                break;
+
+            case PM_ENDSET:
+                currentPosToStorage(1);
+                break;
+
+            default:
+                panelMode = mainmenu_option;
+                break;
+            }
+            break;
+            
         default:
             panelMode = PM_MAINMENU;
             break;
@@ -506,7 +520,7 @@ void mopa_stick()
         {
             stickBresenham[i] += stickMax[i];   // re-prime while considering underflow
             currentpos[i] += stickDirection[i]; // the position change
-            digitalWrite(pins_dir[i], (stickDirection[i] > 0));
+            digitalWrite(pins_dir[i], (stickDirection[i] < 0));
             digitalWrite(pins_step[i], HIGH); // the actual step signal
         }
     }
