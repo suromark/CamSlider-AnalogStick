@@ -30,11 +30,20 @@ extern long volatile currentpos[NUM_AXIS]; // make global
 long volatile targetpos[NUM_AXIS];
 extern long volatile targetpos[NUM_AXIS]; // make global
 
-uint8_t pins_dir[] = {7, 9, 11};
-extern uint8_t pins_dir[]; // make global
+struct motor_pin
+{
+    uint8_t pin_dir;  // Direction-Pins
+    uint8_t pin_step; // Step-Pins
+    uint8_t lvl_forw; // Forward-Direction level
+    uint8_t lvl_back; // Backward-Direction level
+};
 
-uint8_t pins_step[] = {8, 10, 12};
-extern uint8_t pins_step[]; // make global
+volatile struct motor_pin motor_pins[NUM_AXIS] = {
+    {7, 8, LOW, HIGH},
+    {9, 10, LOW, HIGH},
+    {11, 12, LOW, HIGH}};
+
+extern volatile motor_pin motor_pins[]; // make global
 
 uint8_t outPins[] = {7, 8, 9, 10, 11, 12};
 extern uint8_t outPins[]; // make global
@@ -153,7 +162,7 @@ byte buttonState[] = {0, 0, 0}; // Buttons 0-2
 /* motion patterns */
 
 byte motionPattern = 0;
-PROGMEM const char motionPatternTexts[][12] = { 
+PROGMEM const char motionPatternTexts[][12] = {
     "   PINGPONG",
     "ONEWAY TRIG",
     "ONEWAY REPE",
@@ -178,7 +187,6 @@ byte mainmenu_option = 0;
 
 /* Active Panel Mode */
 
-
 #define PM_STARTSET 0
 #define PM_ENDSET 1
 #define PM_MOPASET 2
@@ -188,7 +196,7 @@ byte mainmenu_option = 0;
 
 byte panelMode = 5;
 
-PROGMEM const char romTexts[][17] = { 
+PROGMEM const char romTexts[][17] = {
     "Exit < T0 > SET ", // 0
     "Exit < T1 > SET ", // 1
     "CamSlider  ready", // 2
@@ -197,4 +205,4 @@ PROGMEM const char romTexts[][17] = {
     "RELEASE JOYSTICK", // 5
     "Calib start in  ", // 6
     "Push to select  ", // 7
-    };
+};

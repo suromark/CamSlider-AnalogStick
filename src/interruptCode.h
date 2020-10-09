@@ -27,7 +27,7 @@ e.g. dividerCount = desiredDeltaT * cpufreq / prescale = 0.0001 * 16.000.000 / 2
     OCR1A = MY_OCR_DIVIDER;                            // Output Compare Register - base speed
     TCCR1B |= (1 << CS12) | (0 << CS11) | (0 << CS10); // Clock Prescaler: 101 = 1024, 100 = 256, 011 = 64, 010 = 8; 000 = no prescale
     TIMSK1 |= (1 << OCIE1A);                           // Timer Compare Interrupt enable
-    interrupts();                                      
+    interrupts();
 };
 
 /**
@@ -55,7 +55,7 @@ ISR(TIMER1_COMPA_vect)
     {
         for (int i = 0; i < NUM_AXIS; i++)
         {
-            digitalWrite(pins_step[i], LOW); // always pull down Step signal after 2 timer loop
+            digitalWrite(motor_pins[i].pin_step, LOW); // always pull down Step signal after 2 timer loop
         }
     }
 
@@ -120,9 +120,9 @@ ISR(TIMER1_COMPA_vect)
             bresenham[i] -= steps[i];
             if (bresenham[i] < 0) // time for a step
             {
-                bresenham[i] += stepsmax;         // re-prime while considering underflow
-                currentpos[i] += steps_dir[i];    // the position change
-                digitalWrite(pins_step[i], HIGH); // the actual step signal
+                bresenham[i] += stepsmax;                   // re-prime while considering underflow
+                currentpos[i] += steps_dir[i];              // the position change
+                digitalWrite(motor_pins[i].pin_step, HIGH); // the actual step signal
             }
         }
     }

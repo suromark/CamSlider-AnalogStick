@@ -297,7 +297,7 @@ void doButtonInput()
                 break;
             }
             break;
-            
+
         default:
             panelMode = PM_MAINMENU;
             break;
@@ -460,7 +460,7 @@ void mopa_stick()
 
     for (byte i = 0; i < MY_STICK_USED; i++)
     {
-        digitalWrite(pins_step[i], 0);
+        digitalWrite(motor_pins[i].pin_step, 0);
     }
 
     // read one input per loop only, to even out the required extra time for analogRead() ( about 1/10,000 sec.)
@@ -520,8 +520,8 @@ void mopa_stick()
         {
             stickBresenham[i] += stickMax[i];   // re-prime while considering underflow
             currentpos[i] += stickDirection[i]; // the position change
-            digitalWrite(pins_dir[i], (stickDirection[i] < 0));
-            digitalWrite(pins_step[i], HIGH); // the actual step signal
+            digitalWrite(motor_pins[i].pin_dir, (stickDirection[i] > 0 ? motor_pins[i].lvl_forw : motor_pins[i].lvl_back));
+            digitalWrite(motor_pins[i].pin_step, HIGH); // the actual step signal
         }
     }
 }
@@ -1059,13 +1059,13 @@ void recalculateMotion()
         if (steps[i] > 0)
         {
             steps_dir[i] = 1;
-            digitalWrite(pins_dir[i], HIGH);
+            digitalWrite(motor_pins[i].pin_dir, motor_pins[i].lvl_forw);
         }
         else
         {
             steps_dir[i] = -1;
             steps[i] = -steps[i];
-            digitalWrite(pins_dir[i], LOW);
+            digitalWrite(motor_pins[i].pin_dir, motor_pins[i].lvl_back);
         }
 
         if (steps[i] > stepsmax)
