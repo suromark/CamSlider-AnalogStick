@@ -25,6 +25,7 @@ void mopa_stick();         // drive by wire, use analog inputs to do timed steps
 void checkEncoder();
 void turnUp();
 void turnDown();
+void smartDelayStep();
 void multiDebouncer();
 void doButtonInput();
 void mainmenu_previousoption();
@@ -240,6 +241,31 @@ void setTargetForBrake()
 
 
 
+The faster the button is turned, the bigger the step becomes
+*/
+void smartDelayStep() {
+
+    static unsigned long lastTurnPulse = 0;
+
+        if( lastTurnPulse + 150 < theTick ) {
+            stepDelayStep = 1;
+        } else if ( lastTurnPulse + 80 < theTick ) {
+            stepDelayStep = 10;
+        } else if ( lastTurnPulse + 50 < theTick ) {
+            stepDelayStep = 100;
+        } else { 
+            stepDelayStep = 1000;
+        }
+
+    lastTurnPulse = theTick;
+
+}
+/* ##########################################################################################################
+
+
+
+
+
 
 
 wait until brake phase ended, then go to stop phase
@@ -286,10 +312,12 @@ void doButtonInput()
             {
             case PM_STARTSET:
                 currentPosToStorage(0);
+                panelMode = PM_CONFIRMPOS;
                 break;
 
             case PM_ENDSET:
                 currentPosToStorage(1);
+                panelMode = PM_CONFIRMPOS;
                 break;
 
             default:
@@ -454,7 +482,7 @@ void mopa_stick()
         return;
     }
 
-    nextMicroTick = nowMicroTick + 200; // this is more precise than the coarse millis()
+    nextMicroTick = nowMicroTick + 150; // this is more precise than the coarse millis()
 
     // always clear the steps pins
 
@@ -863,6 +891,7 @@ void turnUp()
         break;
 
     case PM_DELAYSET:
+        smartDelayStep();
         stepDelay = stepDelay + stepDelayStep;
         recalculateDelay();
         showPositionAndTarget();
@@ -904,7 +933,9 @@ void turnDown()
     case PM_MAINMENU:
         mainmenu_nextoption();
         break;
+
     case PM_DELAYSET:
+    smartDelayStep();
         stepDelay = stepDelay - (stepDelay >= stepDelayStep ? stepDelayStep : 0);
         recalculateDelay();
         showPositionAndTarget();
@@ -975,6 +1006,10 @@ void disp_panelmode()
     case PM_MOPASET:
         // ignore the wchar_t / %S warning, arduino uses %S for Progmem instead
         snprintf(strbuf, sizeof strbuf, "Mode %.11S", motionPatternTexts[motionPattern]);
+        break;
+    case PM_CONFIRMPOS:
+        snprintf(strbuf, sizeof strbuf, "%S", romTexts[8]);
+        panelMode = PM_MAINMENU;
         break;
     default:
         snprintf(strbuf, sizeof strbuf, "%c%S", 3, romTexts[7]);

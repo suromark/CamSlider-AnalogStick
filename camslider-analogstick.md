@@ -14,13 +14,13 @@ Menu structure (rotation/click knob)
 
 MODE -> (Click) -> STICK DRIVE | PINGPONG | ONEWAY | ONEWAY_TRIG -> (click = stop + select + return)
  | 
-POINT 1 -> (Click) -> Turn right: SET HERE | Turn Left: RETURN
+POINT 1 -> (Click) -> set coordinate index 0, back to menu
  |
-POINT 2 -> (Click) -> Turn right: SET HERE | Turn Left: RETURN 
+POINT 2 -> (Click) -> set coordinate index 1, back to menu
  |
 STEP DELAY -> (Click) -> Turn right: UP | Turn Left: DOWN -> (Click = Return)
  |
-OPTIONS -> (Click) -> Recalibrate | Reboot
+OPTIONS -> (Click) -> Recalibrate | Reboot?
 
 Button Analog-Top: Start / Stop
 

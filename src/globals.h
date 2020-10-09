@@ -77,7 +77,7 @@ extern unsigned long lastShow; // used globally
 uint16_t volatile stepDelay = 10;   // the bigger the slower the sled moves. User-adjusted value
 extern uint16_t volatile stepDelay; // used globally
 
-uint16_t volatile stepDelayStep = 1;    // used for convenience, can cycle through 1,10,10,1000,10000 with
+uint16_t volatile stepDelayStep = 1;    // used for convenience, can auto-scale from 1,10,10,1000,10000 depending on turn pulse rate
 extern uint16_t volatile stepDelayStep; // used globally
 
 unsigned long theTick = 0;    // millis() buffer
@@ -193,6 +193,7 @@ byte mainmenu_option = 0;
 #define PM_DELAYSET 3
 #define PM_OPTIONS 4
 #define PM_MAINMENU 5 // Init point, select menu points by rotation knob
+#define PM_CONFIRMPOS 6 // a short confirmation message, will autoreset to MAINMENU after 1 cycle
 
 byte panelMode = 5;
 
@@ -205,4 +206,5 @@ PROGMEM const char romTexts[][17] = {
     "RELEASE JOYSTICK", // 5
     "Calib start in  ", // 6
     "Push to select  ", // 7
+    "Position stored ", // 8
 };
