@@ -9,8 +9,9 @@ Startup -> position = Zero
 
 Input:
 Analog 3-axis stick with button, digital rotating knob, 3 button options: start/stop, config cycle, skip2next
+Analog stick model e.g. JH-D400X-R4 10kOhm 4D sealed rocker
 
-Menu structure (rotation/click knob)
+Menu structure (rotation/click encoder knob)
 
 MODE -> (Click) -> STICK DRIVE | STICK SLOW | PINGPONG | ONEWAY | ONEWAY_TRIG -> (click =  select + return)
  | 
@@ -22,7 +23,7 @@ STEP DELAY -> (Click) -> Turn right: UP | Turn Left: DOWN -> (Click = Return)
  |
 OPTIONS -> (Click) -> Recalibrate | Reboot?
 
-Button Analog-Top: Start / Stop motors
+Analog stick top button: Start / Stop motors
 
 Button B:
 While driving in ... mode:
