@@ -4,12 +4,13 @@ Using Bresenham multi-dimensional as illustrated at http://members.chello.at/eas
 
 Analog-Stick-Version - No auto-range at startup. All positions are user responsibility. 
 
-Ideas:
-Startup -> position = Zero
+Startup -> current position = Zero
 
 Input:
 Analog 3-axis stick with button, digital rotating knob, 3 button options: start/stop, config cycle, skip2next
 Analog stick model e.g. JH-D400X-R4 10kOhm 4D sealed rocker
+
+Steppers: e.g. MINEBEA 17PM-K077BP01CN (cheap, rather low power consumption, 10.2 Volts nominal, max. 300 mA (but works fine at 100 mA already), comes with GT2 14T gear premounted) 
 
 Menu structure (rotation/click encoder knob)
 
