@@ -51,7 +51,7 @@ extern uint8_t outPins[]; // make global
 /* analog input / joystick control */
 
 #define MY_STICK_USED 3  // how many analog inputs to use
-#define MY_STICK_DEAD 64 // size of the no-motion dead zone around the center; 7 % left/right
+#define MY_STICK_DEAD 64 // size of the no-motion deadband zone around the center; 7 % left/right
 
 uint8_t stickPins[] = {A1, A2, A0}; // Mapping of inputs to Axis X, Y, Z
 extern uint8_t stickPins[];         // make global
@@ -123,19 +123,19 @@ extern long volatile stepsmax, stepstodo; // make global
 #define PIN_ROTA_1 5
 #define PIN_ROTA_2 6
 
-#define PUSH_CYCLE 4   // mode cycle
-#define PUSH_SKIP 2    // skip 2 next
+#define PUSH_ENCODER 4   // encoder push button
+#define PUSH_SKIP 2    // skip to next target
 #define PUSH_STASTOP 3 // start/stop
 
 byte pullPins[] = {
-    PIN_ROTA_1, PIN_ROTA_2, PUSH_CYCLE, PUSH_SKIP, PUSH_STASTOP}; // these will get INPUT_PULLUP
+    PIN_ROTA_1, PIN_ROTA_2, PUSH_ENCODER, PUSH_SKIP, PUSH_STASTOP}; // these will get INPUT_PULLUP
 
-/* Buttons A-E debouncer output - each state will be set for ONE LOOP after calling multiDebouncer() then revert to 0 */
+/* Buttons debouncer output - each state will be set for ONE LOOP after calling multiDebouncer() then revert to 0 */
 
 byte buttonState[] = {0, 0, 0}; // Buttons 0-2
-#define BUTTONSTATE_CYCLE 0     // offset in array
+#define BUTTONSTATE_ENCODER 0     // offset in array
 #define BUTTONSTATE_SKIP 1      // offset in array
-#define BUTTONSTATE_STASTOP 2   // offset in array
+#define BUTTONSTATE_STASTOP 2   // offset in array, button = 
 #define BUTTON_TIME_LONG 1000   // 1000 ms or longer counts as "long press"
 #define BUTTON_PRESS_NONE 0     // button is not pressed at all
 #define BUTTON_PRESS_SHORT 1    // button was released within 1 seconds of press detection during last check
@@ -161,16 +161,19 @@ byte buttonState[] = {0, 0, 0}; // Buttons 0-2
 
 /* motion patterns */
 
-byte motionPattern = 0;
+byte motionPatternSelect = 0; // motion pattern selector pointer
+byte motionPatternActive = 0; // actually active motion pattern
 PROGMEM const char motionPatternTexts[][12] = {
     "   PINGPONG",
     "ONEWAY TRIG",
     "ONEWAY REPE",
-    "STICK DRIVE"};
+    "STICK DRIVE",
+    "STICK SLOW "};
 #define MOPA_PINGPONG 0      // default behavior: run back and forth between A and B at preset speed
 #define MOPA_ONEWAY 1        // runs from A to B with the preset speed, waits for button, then returns to A at max speed, waits again
 #define MOPA_ONEWAY_REPEAT 2 // runs to position B with the preset speed, returns to A at max speed, repeats with no interaction
-#define MOPA_STICK 3         // runs to position B with the preset speed, returns to A at max speed, repeats with no interaction
+#define MOPA_STICK 3         // interactive control by analog stick
+#define MOPA_STICK_SLOW 4   // interactive control by analog stick, reduced speed
 
 /* Main Menu selectable options */
 
@@ -194,6 +197,7 @@ byte mainmenu_option = 0;
 #define PM_OPTIONS 4
 #define PM_MAINMENU 5 // Init point, select menu points by rotation knob
 #define PM_CONFIRMPOS 6 // a short confirmation message, will autoreset to MAINMENU after 1 cycle
+#define PM_CONFIRMMODE 7 // a short confirmation message, will autoreset to MAINMENU after 1 cycle
 
 byte panelMode = 5;
 
@@ -207,4 +211,5 @@ PROGMEM const char romTexts[][17] = {
     "Calib start in  ", // 6
     "Push to select  ", // 7
     "Position stored ", // 8
+    "New mode active ", // 9
 };

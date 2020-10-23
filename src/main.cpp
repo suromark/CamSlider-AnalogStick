@@ -131,7 +131,8 @@ void setup()
     tickerLimit = stepDelay;
     tickerNow = 0;
     modus = MODE_STOP;
-    motionPattern = MOPA_STICK;
+    motionPatternSelect = MOPA_STICK;
+    motionPatternActive = MOPA_STICK;
 
     /* clear coordinates list */
 
@@ -243,22 +244,29 @@ void setTargetForBrake()
 
 The faster the button is turned, the bigger the step becomes
 */
-void smartDelayStep() {
+void smartDelayStep()
+{
 
     static unsigned long lastTurnPulse = 0;
 
-        if( lastTurnPulse + 150 < theTick ) {
-            stepDelayStep = 1;
-        } else if ( lastTurnPulse + 80 < theTick ) {
-            stepDelayStep = 10;
-        } else if ( lastTurnPulse + 50 < theTick ) {
-            stepDelayStep = 100;
-        } else { 
-            stepDelayStep = 1000;
-        }
+    if (lastTurnPulse + 150 < theTick)
+    {
+        stepDelayStep = 1;
+    }
+    else if (lastTurnPulse + 80 < theTick)
+    {
+        stepDelayStep = 10;
+    }
+    else if (lastTurnPulse + 50 < theTick)
+    {
+        stepDelayStep = 100;
+    }
+    else
+    {
+        stepDelayStep = 1000;
+    }
 
     lastTurnPulse = theTick;
-
 }
 /* ##########################################################################################################
 
@@ -302,21 +310,29 @@ void doButtonInput()
 
     // CYCLE activates the currently selected main menu item, or returns to main menu
 
-    if (buttonState[BUTTONSTATE_CYCLE] == BUTTON_PRESS_SHORT)
+    if (buttonState[BUTTONSTATE_ENCODER] == BUTTON_PRESS_SHORT)
     {
         switch (panelMode)
         {
+
+        case PM_MOPASET:
+            motionPatternActive = motionPatternSelect;
+            panelMode = PM_CONFIRMMODE;
+            break;
+
         case PM_MAINMENU:
 
             switch (mainmenu_option)
             {
             case PM_STARTSET:
                 currentPosToStorage(0);
+                recalculateMotion();
                 panelMode = PM_CONFIRMPOS;
                 break;
 
             case PM_ENDSET:
                 currentPosToStorage(1);
+                recalculateMotion();
                 panelMode = PM_CONFIRMPOS;
                 break;
 
@@ -409,7 +425,7 @@ void initDebug()
         positions[1][j] = 1000;
     }
     modus = MODE_RUN;
-    motionPattern = MOPA_PINGPONG;
+    motionPatternActive = MOPA_PINGPONG;
 
     startFromHalt();
 }
@@ -430,7 +446,7 @@ void runNormal()
 {
     static unsigned long nextShow = 0;
 
-    switch (motionPattern)
+    switch (motionPatternActive)
     {
     case MOPA_ONEWAY:
         mopa_oneway_trig();
@@ -441,6 +457,7 @@ void runNormal()
         break;
 
     case MOPA_STICK:
+    case MOPA_STICK_SLOW:
         mopa_stick();
         break;
 
@@ -451,8 +468,14 @@ void runNormal()
 
     if (theTick > nextShow)
     {
-        if (motionPattern != MOPA_STICK)
+        if (motionPatternActive == MOPA_STICK || motionPatternActive == MOPA_STICK_SLOW)
+        {
+            // stick drive does not update the display for performance reasons
+        }
+        else
+        {
             showPositionAndTarget();
+        }
         nextShow = theTick + SHOW_EVERY_N_MILLIS;
     }
 }
@@ -482,7 +505,7 @@ void mopa_stick()
         return;
     }
 
-    nextMicroTick = nowMicroTick + 150; // this is more precise than the coarse millis()
+    nextMicroTick = nowMicroTick + 150 + (motionPatternActive == MOPA_STICK_SLOW ? 1350 : 0); // this is more precise than the coarse millis()
 
     // always clear the steps pins
 
@@ -887,7 +910,7 @@ void turnUp()
     switch (panelMode)
     {
     case PM_MAINMENU:
-        mainmenu_previousoption();
+        mainmenu_nextoption();
         break;
 
     case PM_DELAYSET:
@@ -897,17 +920,14 @@ void turnUp()
         showPositionAndTarget();
         break;
 
-    case PM_MOPASET:
-        motionPattern = (motionPattern == countof(motionPatternTexts) - 1 ? 0 : motionPattern + 1);
-        recalculateDelay();
+    case PM_MOPASET: // selection only; will active only on encoder button press
+        motionPatternSelect = (motionPatternSelect == countof(motionPatternTexts) - 1 ? 0 : motionPatternSelect + 1);
         break;
 
     case PM_STARTSET:
-        currentPosToStorage(0);
-        break;
-
     case PM_ENDSET:
-        currentPosToStorage(1);
+        // turn instead of press returns to mainmenu_option
+        panelMode = PM_MAINMENU;
         break;
 
     default:
@@ -931,20 +951,18 @@ void turnDown()
     switch (panelMode)
     {
     case PM_MAINMENU:
-        mainmenu_nextoption();
+        mainmenu_previousoption();
         break;
 
     case PM_DELAYSET:
-    smartDelayStep();
+        smartDelayStep();
         stepDelay = stepDelay - (stepDelay >= stepDelayStep ? stepDelayStep : 0);
         recalculateDelay();
         showPositionAndTarget();
         break;
 
     case PM_MOPASET:
-        motionPattern = (motionPattern == 0 ? countof(motionPatternTexts) - 1 : motionPattern - 1);
-        recalculateDelay();
-        lcd.print(1, 0, strbuf);
+        motionPatternSelect = (motionPatternSelect == 0 ? countof(motionPatternTexts) - 1 : motionPatternSelect - 1);
         break;
 
     case PM_STARTSET:
@@ -1005,10 +1023,14 @@ void disp_panelmode()
         break;
     case PM_MOPASET:
         // ignore the wchar_t / %S warning, arduino uses %S for Progmem instead
-        snprintf(strbuf, sizeof strbuf, "Mode %.11S", motionPatternTexts[motionPattern]);
+        snprintf(strbuf, sizeof strbuf, "Mode %.11S", motionPatternTexts[motionPatternSelect]);
         break;
     case PM_CONFIRMPOS:
         snprintf(strbuf, sizeof strbuf, "%S", romTexts[8]);
+        panelMode = PM_MAINMENU;
+        break;
+    case PM_CONFIRMMODE:
+        snprintf(strbuf, sizeof strbuf, "%S", romTexts[9]);
         panelMode = PM_MAINMENU;
         break;
     default:
@@ -1030,7 +1052,7 @@ void multiDebouncer()
 {
 #define dbPATTERN_PRESS 0b01001111
 #define dbPATTERN_RELEASE 0b00011111
-    static byte dbPins[] = {PUSH_CYCLE, PUSH_SKIP, PUSH_STASTOP};
+    static byte dbPins[] = {PUSH_ENCODER, PUSH_SKIP, PUSH_STASTOP};
     static byte b_flow[] = {0, 0, 0, 0, 0};
     static unsigned long lastTick = 0;
     static unsigned long nextTick = 0;
@@ -1124,7 +1146,7 @@ void recalculateDelay()
         tickerLimit = 0;
         break;
     default:
-        switch (motionPattern)
+        switch (motionPatternActive)
         {
         case MOPA_ONEWAY:
         case MOPA_ONEWAY_REPEAT:
