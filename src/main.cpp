@@ -308,7 +308,7 @@ Responses to button presses
 void doButtonInput()
 {
 
-    // CYCLE activates the currently selected main menu item, or returns to main menu
+    // Encoder button activates the currently selected main menu item, or returns to main menu
 
     if (buttonState[BUTTONSTATE_ENCODER] == BUTTON_PRESS_SHORT)
     {
@@ -371,6 +371,10 @@ void doButtonInput()
             lcd.print(0, 0, txt_moving);
         }
     }
+
+    // Extra button sets the posCursor to its next entry
+
+
 }
 /* #####################################################################################################
 
@@ -548,7 +552,7 @@ void mopa_stick()
         stickStepsize[loopa] -= MY_STICK_DEAD; // step size outside dead zone
     }
 
-    if (0) // for debugging only, ignore for speed
+    if (0) // for debugging only, disable for speed
     {
         Serial.print(loopa);
         Serial.print(" SS=");
@@ -589,23 +593,31 @@ Motion pattern back and forth at constant slow speed
 void mopa_pingpong()
 {
 
+    static bool nextafterstop = false;
+
     /* reach/pong behavior */
 
-    if (targetReached)
+   if (targetReached == true )
     {
-        enblStep = false;
-        posCursor++;
-        if (posCursor >= numOfPoints)
-        {
-            posCursor = 0;
-        }
-
-        setTargetToPositionItem(posCursor);
-
-        recalculateDelay();
-        recalculateMotion();
-        startFromHalt();
+        nextafterstop = false;
+        gotoNextTarget();
     }
+
+
+
+   /* responding to button B */
+    if (buttonState[BUTTONSTATE_SKIP] == BUTTON_PRESS_SHORT)
+    {
+        if (targetReached == false) /* we're mid-move, do slow down first! */
+        {
+            setTargetForBrake();
+        } else {
+            gotoNextTarget();
+        }
+    }
+
+
+
 }
 
 /* #####################################################################################################
@@ -619,7 +631,31 @@ void mopa_oneway_trig()
     static bool toldyou = false;
     static bool nextafterstop = false;
 
-    if (targetReached == true && toldyou == false) // diagnostic output at endpos
+    if (targetReached == true && nextafterstop == true)
+    {
+        nextafterstop = false;
+        toldyou = false;
+        gotoNextTarget();
+    }
+
+    /* responding to button B */
+    if (buttonState[BUTTONSTATE_SKIP] == BUTTON_PRESS_SHORT)
+    {
+            toldyou = false;
+
+        if (targetReached == false) /* we're mid-move, do slow down first! */
+        {
+            nextafterstop = true;
+            setTargetForBrake();
+        }
+        else
+        { /* we're standing still at endpoint, so go ahead directly */
+            nextafterstop = false;
+            gotoNextTarget();
+        }
+    }
+
+   if (toldyou == false) // tell user (usually at endpos only to avoid delays)
     {
         toldyou = true;
         if (posCursor == 0)
@@ -635,27 +671,7 @@ void mopa_oneway_trig()
         lcd.print(1, 0, strbuf);
     }
 
-    if (targetReached == true && nextafterstop == true)
-    {
-        nextafterstop = false;
-        gotoNextTarget();
-    }
 
-    /* responding to button B */
-    if (buttonState[BUTTONSTATE_SKIP] == BUTTON_PRESS_SHORT)
-    {
-        if (targetReached == false) /* we're mid-move, do slow down first! */
-        {
-            nextafterstop = true;
-            setTargetForBrake();
-        }
-        else
-        { /* we're standing still at endpoint, so go ahead directly */
-            toldyou = false;
-            nextafterstop = false;
-            gotoNextTarget();
-        }
-    }
 }
 /* #####################################################################################################
 
@@ -989,6 +1005,10 @@ void currentPosToStorage(byte cursor)
     {
         positions[cursor][i] = currentpos[i];
     }
+
+    posCursor = cursor;
+    setTargetToPositionItem( cursor );
+
 }
 
 /* #####################################################################################################
