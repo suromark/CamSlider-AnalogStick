@@ -601,9 +601,8 @@ void mopa_pingpong()
     {
         nextafterstop = false;
         gotoNextTarget();
+        return;
     }
-
-
 
    /* responding to button B */
     if (buttonState[BUTTONSTATE_SKIP] == BUTTON_PRESS_SHORT)
