@@ -23,7 +23,10 @@
   * recommended: additional step-down regulator to deliver 5 volts for display, TMC driver logic side and Arduino
 
 ### Steppers:
-* e.g. MINEBEA 17PM-K077BP01CN (cheap, rather low power consumption, 10.2 Volts nominal, max. 300 mA but works fine at 100 mA already, comes with GT2 14T gear premounted) 
+* e.g. MINEBEA 17PM-K077BP01CN (cheap, rather low power consumption, 10.2 Volts nominal, max. 300 mA but works f
+
+### wiring @todo
+* perfboard sample pictures (incomplete) see: https://www.instagram.com/p/CFacepfKM1g/
 
 ## Menu structure (rotation/push encoder button)
 * MODE SELECT 
