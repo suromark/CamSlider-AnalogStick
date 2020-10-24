@@ -5,7 +5,7 @@
 
 #define INTERRUPTS_PER_SECOND 20833 // theoretical should be 31250, but stopwatch says it's 66 % of that ...?
 
-void setUpInterrupt()
+void setUpInterruptForNano()
 {
 
     /* 

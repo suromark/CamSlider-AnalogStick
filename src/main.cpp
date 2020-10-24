@@ -4,7 +4,9 @@
 
 #include "myLCD.h"
 
+#ifdef ARDUINO_AVR_NANO
 #include "interruptCode.h"
+#endif
 
 myLCD lcd;
 
@@ -155,7 +157,9 @@ void setup()
     snprintf(strbuf, sizeof strbuf, "%S", romTexts[3]);
     lcd.print(1, 0, strbuf);
 
-    setUpInterrupt();
+#ifdef ARDUINO_AVR_NANO
+    setUpInterruptForNano();
+#endif
 
     if (false)
     {
@@ -373,8 +377,6 @@ void doButtonInput()
     }
 
     // Extra button sets the posCursor to its next entry
-
-
 }
 /* #####################################################################################################
 
@@ -597,26 +599,25 @@ void mopa_pingpong()
 
     /* reach/pong behavior */
 
-   if (targetReached == true )
+    if (targetReached == true)
     {
         nextafterstop = false;
         gotoNextTarget();
         return;
     }
 
-   /* responding to button B */
+    /* responding to button B */
     if (buttonState[BUTTONSTATE_SKIP] == BUTTON_PRESS_SHORT)
     {
         if (targetReached == false) /* we're mid-move, do slow down first! */
         {
             setTargetForBrake();
-        } else {
+        }
+        else
+        {
             gotoNextTarget();
         }
     }
-
-
-
 }
 
 /* #####################################################################################################
@@ -640,7 +641,7 @@ void mopa_oneway_trig()
     /* responding to button B */
     if (buttonState[BUTTONSTATE_SKIP] == BUTTON_PRESS_SHORT)
     {
-            toldyou = false;
+        toldyou = false;
 
         if (targetReached == false) /* we're mid-move, do slow down first! */
         {
@@ -654,7 +655,7 @@ void mopa_oneway_trig()
         }
     }
 
-   if (toldyou == false) // tell user (usually at endpos only to avoid delays)
+    if (toldyou == false) // tell user (usually at endpos only to avoid delays)
     {
         toldyou = true;
         if (posCursor == 0)
@@ -669,8 +670,6 @@ void mopa_oneway_trig()
         }
         lcd.print(1, 0, strbuf);
     }
-
-
 }
 /* #####################################################################################################
 
@@ -819,8 +818,11 @@ void showPositionAndTarget()
     long remainingSeconds = -1;
     char uhrzeit[7];
 
+#ifdef ARDUINO_AVR_NANO
     /* calculate remaining runtime from remaining steps / steps per second  */
     remainingSeconds = (MIN_SAFE_SPEED + tickerLimit) * stepstodo / INTERRUPTS_PER_SECOND;
+#endif
+
     if (remainingSeconds > 5999940)
     {
         strncpy(uhrzeit, "++++++", 6); // time overflow
@@ -1006,8 +1008,7 @@ void currentPosToStorage(byte cursor)
     }
 
     posCursor = cursor;
-    setTargetToPositionItem( cursor );
-
+    setTargetToPositionItem(cursor);
 }
 
 /* #####################################################################################################
