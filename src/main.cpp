@@ -129,7 +129,7 @@ void setup()
 
     /* set some default values */
 
-    stepDelay = 20;
+    stepDelay = 60;
     tickerLimit = stepDelay;
     tickerNow = 0;
     modus = MODE_STOP;
