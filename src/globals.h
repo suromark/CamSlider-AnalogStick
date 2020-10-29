@@ -1,11 +1,22 @@
 #include "Arduino.h"
 
+#define NUM_AXIS 3 // how many motors to drive
+
+struct motor_pin
+{
+    uint8_t pin_dir;  // Direction-Pins
+    uint8_t pin_step; // Step-Pins
+    uint8_t lvl_forw; // Forward-Direction level
+    uint8_t lvl_back; // Backward-Direction level
+};
 
 #ifdef ARDUINO_AVR_NANO // conventiently defined by pioenvs
 #include <avr/pgmspace.h>
+#include "pins_nano.h"
 #endif 
 
 #ifdef ARDUINO_NodeMCU_32S// esp32 branch
+#include "pins_esp32.h"
 #endif
 
 #define MY_OCR_DIVIDER 2 // Arduino Nano specific: Base trigger of output compare register, i.e. every N increments of Timer1 do the interrupt routine with speed/accel/step evaluation
@@ -13,7 +24,6 @@
 // also the slowdown logic needs to be scaled to match the frequency of steps ...
 #define MIN_SAFE_SPEED 3 // never below 2! Experiment with this vs the ocr_divider, it sets the maximum step speed by defining a minimum amount of delay loops; if the motor stalls it's too low
 
-#define NUM_AXIS 3 // how many motors to drive
 #define STEPS_LIN 200
 #define STEPS_ROT 100
 
@@ -36,48 +46,6 @@ extern long volatile currentpos[NUM_AXIS]; // make global
 
 long volatile targetpos[NUM_AXIS];
 extern long volatile targetpos[NUM_AXIS]; // make global
-
-struct motor_pin
-{
-    uint8_t pin_dir;  // Direction-Pins
-    uint8_t pin_step; // Step-Pins
-    uint8_t lvl_forw; // Forward-Direction level
-    uint8_t lvl_back; // Backward-Direction level
-};
-
-#ifdef ARDUINO_AVR_NANO
-volatile struct motor_pin motor_pins[NUM_AXIS] = {
-    {7, 8, LOW, HIGH},
-    {9, 10, LOW, HIGH},
-    {11, 12, LOW, HIGH}};
-extern volatile motor_pin motor_pins[]; // make global
-
-uint8_t outPins[] = {7, 8, 9, 10, 11, 12};
-extern uint8_t outPins[]; // make global
-
-uint8_t stickPins[] = {A1, A2, A0}; // Mapping of inputs to Axis X, Y, Z
-extern uint8_t stickPins[];         // make global
-
-#endif
-
-#ifdef ARDUINO_NodeMCU_32S
-
-volatile struct motor_pin motor_pins[NUM_AXIS] = {
-    {33, 25, LOW, HIGH},
-    {26, 27, LOW, HIGH},
-    {14, 12, LOW, HIGH}};
-extern volatile motor_pin motor_pins[]; // make global
-
-uint8_t outPins[] = {33, 25, 26, 27, 14, 12};
-extern uint8_t outPins[]; // make global
-
-uint8_t stickPins[] = {34, 35, 32}; // Mapping of inputs to Axis X, Y, Z
-extern uint8_t stickPins[];         // make global
-
-#endif
-
-
-
 
 /* analog input / joystick control */
 
