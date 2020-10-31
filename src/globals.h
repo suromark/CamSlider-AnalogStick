@@ -12,11 +12,11 @@ struct motor_pin
 
 #ifdef ARDUINO_AVR_NANO // conventiently defined by pioenvs
 #include <avr/pgmspace.h>
-#include "pins_nano.h"
+#include "for_nano/pins_nano.h"
 #endif 
 
 #ifdef ARDUINO_NodeMCU_32S// esp32 branch
-#include "pins_esp32.h"
+#include "for_esp32/pins_esp32.h"
 #endif
 
 #define MY_OCR_DIVIDER 2 // Arduino Nano specific: Base trigger of output compare register, i.e. every N increments of Timer1 do the interrupt routine with speed/accel/step evaluation

@@ -1,11 +1,11 @@
-#define FILE_INFO "Source: CamSlider-mk2 - env: platformio"
+#define FILE_INFO "Source: CamSlider-AnalogStick - env: platformio"
 // #include "myi2c.h"
 #include "globals.h"
 
 #include "myLCD.h"
 
 #ifdef ARDUINO_AVR_NANO
-#include "interruptCode.h"
+#include "for_nano/interruptCode.h"
 #endif
 
 myLCD lcd;
