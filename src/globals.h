@@ -4,8 +4,8 @@
 
 struct motor_pin
 {
-    uint8_t pin_dir;  // Direction-Pins
-    uint8_t pin_step; // Step-Pins
+    uint8_t pin_step;  // Direction-Pins
+    uint8_t pin_dir; // Step-Pins
     uint8_t lvl_forw; // Forward-Direction level
     uint8_t lvl_back; // Backward-Direction level
 };
@@ -115,14 +115,7 @@ extern long volatile bresenham[NUM_AXIS]; // make global
 long volatile stepsmax, stepstodo;
 extern long volatile stepsmax, stepstodo; // make global
 
-/* input pins */
-
-#define PIN_ROTA_1 5
-#define PIN_ROTA_2 6
-
-#define PUSH_ENCODER 4   // encoder push button
-#define PUSH_SKIP 2    // skip to next target
-#define PUSH_STASTOP 3 // start/stop
+/* input pins to set to pullup */
 
 byte pullPins[] = {
     PIN_ROTA_1, PIN_ROTA_2, PUSH_ENCODER, PUSH_SKIP, PUSH_STASTOP}; // these will get INPUT_PULLUP
