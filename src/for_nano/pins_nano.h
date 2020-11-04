@@ -12,6 +12,7 @@ extern uint8_t outPins[]; // make global
 uint8_t stickPins[] = {A1, A2, A0}; // Mapping of inputs to Axis X, Y, Z
 extern uint8_t stickPins[];         // make global
 
+#define ANALOG_RANGE 1024
 
 /* input pins */
 

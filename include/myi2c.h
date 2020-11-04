@@ -1,9 +1,10 @@
 #include "Wire.h"
 #include "LiquidCrystal_I2C.h"
 
-uint8_t adr_lcd = 0x27; // Default LCD module base address on I2C bus
+// uint8_t adr_lcd = 0x27; // Default LCD module base address on I2C bus
+uint8_t adr_lcd = 0x3f; // I also got one of those ...
 
-LiquidCrystal_I2C lcd(0x27, 16, 2); // if no LCD detected, this will never be called
+LiquidCrystal_I2C lcd(adr_lcd, 16, 2); // if no LCD detected, this will never be called
 
 /*
 

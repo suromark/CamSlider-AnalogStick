@@ -7,13 +7,13 @@
 
 class myLCD {
     private:
-    uint8_t _adrlcd = 0x27; // usual i2c address of 1604 display
+    uint8_t _adrlcd = 0; // see globals.h for actual value
     bool check_i2c(uint8_t adr);
 
     public:
     myLCD();
     LiquidCrystal_I2C* _lcd;
-    void setup();
+    void setup( uint8_t adr ); // setup i2c LCD at I2C adress adr
     void lighton();
     void lightoff();
     void clear();

@@ -5,7 +5,7 @@
 
 myLCD::myLCD()
 {
-    _adrlcd = 0x27; // Default LCD module base address on I2C bus
+    _adrlcd = 0; // Default LCD module base address on I2C bus; 
 }
 /*
 
@@ -27,6 +27,7 @@ bool myLCD::check_i2c(uint8_t adr)
             Serial.print("0");
         Serial.print(adr, HEX);
         Serial.println("  !");
+        myLCD::_adrlcd = adr;
         return true;
     }
     else
@@ -41,10 +42,10 @@ bool myLCD::check_i2c(uint8_t adr)
     }
 }
 
-void myLCD::setup()
+void myLCD::setup(uint8_t adr)
 {
 
-    _lcd = new LiquidCrystal_I2C(0x27, 16, 2); // if no LCD detected, this will never be called
+    _lcd = new LiquidCrystal_I2C(adr, 16, 2); // if no LCD detected, this will never be called
 
     uint8_t myarrow[8] = {
         0b00000,
@@ -56,7 +57,7 @@ void myLCD::setup()
         0b00000,
         0b00000};
 
-    if (!check_i2c(_adrlcd))
+    if (!check_i2c(adr))
         _adrlcd = 0;
 
     if (_adrlcd)

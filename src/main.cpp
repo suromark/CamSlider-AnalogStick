@@ -8,12 +8,17 @@
 #include "for_nano/interruptCode.h"
 #endif
 
+#ifdef ARDUINO_NodeMCU_32S
+#include "for_esp32/interruptCode.h"
+#endif
+
 myLCD lcd;
 
 #define countof(a) (sizeof(a) / sizeof(a[0])) // matrix rows calculator
 
 /* functions */
 
+void oneCycle(); 
 void initDebug();
 void runNormal();
 void runBrake();
@@ -52,7 +57,7 @@ void setup()
     Serial.print(" ");
     Serial.println(__TIME__);
 
-    lcd.setup();
+    lcd.setup( I2C_LCD_ADDRESS );
     // ignore the wchar_t / %S warning, arduino uses %S for Progmem instead
     snprintf(strbuf, sizeof strbuf, "%S", romTexts[5]);
     lcd.print(0, 0, strbuf);
@@ -161,6 +166,10 @@ void setup()
     setUpInterruptForNano();
 #endif
 
+#ifdef ARDUINO_NodeMCU_32S
+    setUpInterruptForESP32();
+#endif
+
     if (false)
     {
         initDebug();
@@ -180,6 +189,8 @@ void setup()
 
 void loop()
 {
+
+    oneCycle(); // a function that mimics interrupt on ESP32 and does nothing on Nano
 
     theTick = millis();
 

@@ -2,6 +2,9 @@
 
 #define NUM_AXIS 3 // how many motors to drive
 
+// #define I2C_LCD_ADDRESS 0x27 // all my previous 1602 I2C bridge chips use this
+#define I2C_LCD_ADDRESS 0x3f // guess what? the new display uses this one
+
 struct motor_pin
 {
     uint8_t pin_step;  // Direction-Pins
