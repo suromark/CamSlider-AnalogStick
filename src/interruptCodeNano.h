@@ -10,6 +10,15 @@
 
 #define INTERRUPTS_PER_SECOND 20833 // theoretical should be 31250, but stopwatch says it's 66 % of that ...?
 
+
+long platform_specific_forecast()
+{
+    /* calculate remaining runtime from remaining steps / steps per second  */
+    return (MIN_SAFE_SPEED + tickerLimit) * stepstodo / INTERRUPTS_PER_SECOND;
+}
+
+
+
 void setUpInterruptForNano()
 {
 

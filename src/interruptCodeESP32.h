@@ -1,22 +1,33 @@
 #ifndef interruptCode_h
 #define interruptCode_h
 
-#define MIN_SAFE_SPEED 3 // never below 2! Experiment with this vs the ocr_divider, it sets the maximum step speed by defining a minimum amount of delay loops; if the motor stalls it's too low
+#define MIN_SAFE_SPEED 3 // never below 2! Experiment with this vs the interrupt prescalers, it sets the maximum step speed by defining a minimum amount of delay loops; if the motor stalls it's too low
+
+#define INTERRUPTS_PER_SECOND 40000
 
 #include <Arduino.h>
 
 void IRAM_ATTR oneCycle();
 
+
 hw_timer_t *timer = NULL;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
+
+
 
 void setUpInterruptForESP32()
 {
     pinMode(2, OUTPUT);               // onboard LED pulsing
     timer = timerBegin(0, 800, true); // 80 Mhz downscale to 100,000 ticks/second
     timerAttachInterrupt(timer, &oneCycle, true);
-    timerAlarmWrite(timer, 10, true); // call every 10th timer step = 10k /second
+    timerAlarmWrite(timer, 5, true); // call every 5th timer step = 20k /second
     timerAlarmEnable(timer);
+}
+
+long platform_specific_forecast()
+{
+    /* calculate remaining runtime from remaining steps / steps per second  */
+    return (MIN_SAFE_SPEED + tickerLimit) * stepstodo / INTERRUPTS_PER_SECOND;
 }
 
 void IRAM_ATTR oneCycle()

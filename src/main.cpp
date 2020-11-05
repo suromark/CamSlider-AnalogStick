@@ -45,6 +45,7 @@ void recalculateMotion();
 void recalculateDelay();
 void currentPosToStorage(byte cursor);
 
+
 void setup()
 {
     enblStep = false;
@@ -116,7 +117,7 @@ void setup()
         }
         else
         {
-            stickMax[i] = 1023 - stickCenter[i] - MY_STICK_DEAD;
+            stickMax[i] = ANALOG_RANGE - stickCenter[i] - MY_STICK_DEAD;
         }
 
         Serial.print("Axis ");
@@ -171,6 +172,7 @@ void setup()
 
     if (false)
     {
+        Serial.println( F("Debug Mode"));
         initDebug();
     }
 
@@ -826,10 +828,7 @@ void showPositionAndTarget()
     long remainingSeconds = -1;
     char uhrzeit[7];
 
-#ifdef ARDUINO_AVR_NANO
-    /* calculate remaining runtime from remaining steps / steps per second  */
-    remainingSeconds = (MIN_SAFE_SPEED + tickerLimit) * stepstodo / INTERRUPTS_PER_SECOND;
-#endif
+    remainingSeconds = platform_specific_forecast();
 
     if (remainingSeconds > 5999940)
     {
