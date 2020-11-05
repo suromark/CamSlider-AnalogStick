@@ -3,25 +3,50 @@
 
 #include <Arduino.h>
 
-void setUpInterruptForESP32()
-{
-    // we're faking it with the oneCycle() call
-}
+#define MY_OCR_DIVIDER 2 // Arduino Nano specific: Base trigger of output compare register, i.e. every N increments of Timer1 do the interrupt routine with speed/accel/step evaluation
+// if it's too low, it'll cause interrupt overlaps and skips - experiment with this and the prescaler value in the interrupt definition!
+// also the slowdown logic needs to be scaled to match the frequency of steps ...
+#define MIN_SAFE_SPEED 3 // never below 2! Experiment with this vs the ocr_divider, it sets the maximum step speed by defining a minimum amount of delay loops; if the motor stalls it's too low
 
-void oneCycle()
+#define INTERRUPTS_PER_SECOND 20833 // theoretical should be 31250, but stopwatch says it's 66 % of that ...?
+
+void setUpInterruptForNano()
 {
+
+    /* 
+
+init our main interrupt action, based on documentation: 
+https://www.heise.de/developer/artikel/Timer-Counter-und-Interrupts-3273309.html
+e.g. dividerCount = desiredDeltaT * cpufreq / prescale = 0.0001 * 16.000.000 / 256 = 62
+30 = X * 16.000.000 / 8 -> X = 0,015 ms -> 66666 interrupts / second
+ */
+
+    // Timer 1 set to prescaler = 1/256, trigger at every MY_OCR_DIVIDER impulse
+    // interrupt speed @ CPU 16 MHz is 16 M / 2 / 256 = 31250 calls/second
+    // note: we do a step at most every 3rd call ( MIN_SAFE_SPEED ) = top speed is 10416 steps/second
+
+    noInterrupts();
+    TCCR1A = 0;
+    TCCR1B = 0;
+    TCNT1 = 0;                                         // Register init with 0
+    OCR1A = MY_OCR_DIVIDER;                            // Output Compare Register - base speed
+    TCCR1B |= (1 << CS12) | (0 << CS11) | (0 << CS10); // Clock Prescaler: 101 = 1024, 100 = 256, 011 = 64, 010 = 8; 000 = no prescale
+    TIMSK1 |= (1 << OCIE1A);                           // Timer Compare Interrupt enable
+    interrupts();
+};
+
+/**
+ * 
+ * 
+ * 
+ * Interrupt routine
+ */
+ISR(TIMER1_COMPA_vect)
+{
+    TCNT1 = 0; // Register re-init with speed value (necessary?)
+
     static uint16_t closingin = 0;   // extra delay on final approach
     static uint16_t takingoff = 256; // extra delay during first steps
-    static unsigned long lastMicros = 0;
-    static unsigned long nowMicros = 0;
-
-    nowMicros = micros();
-
-    if( lastMicros + 1000 > nowMicros ) {
-        return; // not yet time!
-    }
-
-    lastMicros = nowMicros;
 
     if (enblStep == false) /* motor is disabled, abort early */
     {

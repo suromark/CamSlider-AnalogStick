@@ -15,17 +15,12 @@ struct motor_pin
 
 #ifdef ARDUINO_AVR_NANO // conventiently defined by pioenvs
 #include <avr/pgmspace.h>
-#include "for_nano/pins_nano.h"
+#include "pins_nano.h"
 #endif 
 
 #ifdef ARDUINO_NodeMCU_32S// esp32 branch
-#include "for_esp32/pins_esp32.h"
+#include "pins_esp32.h"
 #endif
-
-#define MY_OCR_DIVIDER 2 // Arduino Nano specific: Base trigger of output compare register, i.e. every N increments of Timer1 do the interrupt routine with speed/accel/step evaluation
-// if it's too low, it'll cause interrupt overlaps and skips - experiment with this and the prescaler value in the interrupt definition!
-// also the slowdown logic needs to be scaled to match the frequency of steps ...
-#define MIN_SAFE_SPEED 3 // never below 2! Experiment with this vs the ocr_divider, it sets the maximum step speed by defining a minimum amount of delay loops; if the motor stalls it's too low
 
 #define STEPS_LIN 200
 #define STEPS_ROT 100

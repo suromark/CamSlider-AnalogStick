@@ -5,11 +5,11 @@
 #include "myLCD.h"
 
 #ifdef ARDUINO_AVR_NANO
-#include "for_nano/interruptCode.h"
+#include "interruptCodeNano.h"
 #endif
 
 #ifdef ARDUINO_NodeMCU_32S
-#include "for_esp32/interruptCode.h"
+#include "interruptCodeESP32.h"
 #endif
 
 myLCD lcd;
@@ -18,7 +18,6 @@ myLCD lcd;
 
 /* functions */
 
-void oneCycle(); 
 void initDebug();
 void runNormal();
 void runBrake();
@@ -189,8 +188,6 @@ void setup()
 
 void loop()
 {
-
-    oneCycle(); // a function that mimics interrupt on ESP32 and does nothing on Nano
 
     theTick = millis();
 
