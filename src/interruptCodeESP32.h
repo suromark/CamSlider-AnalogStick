@@ -12,6 +12,7 @@ portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 
 void setUpInterruptForESP32()
 {
+    pinMode(2, OUTPUT);               // onboard LED pulsing
     timer = timerBegin(0, 800, true); // 80 Mhz downscale to 100,000 ticks/second
     timerAttachInterrupt(timer, &oneCycle, true);
     timerAlarmWrite(timer, 10, true); // call every 10th timer step = 10k /second
@@ -24,6 +25,8 @@ void IRAM_ATTR oneCycle()
     static uint16_t takingoff = 256; // extra delay during first steps
 
     portENTER_CRITICAL_ISR(&timerMux); // ideally wrap the interrupt routine in this
+
+    digitalWrite(2, HIGH);
 
     do
     {
@@ -112,6 +115,8 @@ void IRAM_ATTR oneCycle()
             }
         }
     } while (0);
+
+    digitalWrite(2, LOW);
 
     portEXIT_CRITICAL_ISR(&timerMux);
 
