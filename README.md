@@ -44,6 +44,6 @@
 While driving in ... mode:
 * STICK DRIVE -> no action
 * STICK SLOW -> no action
-* PINGPONG -> Skip to next target
-* ONEWAY -> Return to start
-* ONEWAY_TRIG -> Return to start
+* PINGPONG -> always skip current target and start moving to next target
+* ONEWAY -> always skip current target and start moving to next target
+* ONEWAY_TRIG -> If running, skip to next target | if waiting, start the run
