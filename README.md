@@ -2,7 +2,9 @@
 
 * Using Bresenham multi-dimensional as illustrated at http://members.chello.at/easyfilter/bresenham.html
 * Analog-Stick-Version - No auto-range at startup. All positions are user responsibility. 
-* Microcontroller: Arduino Nano or clone
+* Microcontrollers supported: 
+  * Arduino Nano or clone
+  * ESP32 breakout board e.g. Doit Devkit
 
 ## Hardware used:
 
@@ -16,14 +18,16 @@
 
 ### Output: 
   * 1602 display module with I2C connector
+    * for Nano: 5 Volt version
+    * for ESP32: either 5 Volt version and 2-channel bidir level shifter 3.3 <-> 5, or 3.3 V module
   * Stepper drivers: TMC2208
 
 ### Power supply:
   * 10+ Volts DC of any kind (Lipo, AC adapter, Li-ion battery pack of power tools ...)
-  * recommended: additional step-down regulator to deliver 5 volts for display, TMC driver logic side and Arduino
+  * recommended: additional step-down regulator to deliver 5 volts for display, TMC driver logic side and controller module
 
 ### Steppers:
-* e.g. MINEBEA 17PM-K077BP01CN (cheap, rather low power consumption, 10.2 Volts nominal, max. 300 mA but works f
+* e.g. MINEBEA 17PM-K077BP01CN (cheap, rather low power consumption, 10.2 Volts nominal, max. 300 mA but works fine for this purpose)
 
 ### wiring @todo
 * perfboard sample pictures (incomplete) see: https://www.instagram.com/p/CFacepfKM1g/
