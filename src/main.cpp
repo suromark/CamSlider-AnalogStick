@@ -44,7 +44,7 @@ void newPreview(int previewIndes);       // used for preview; quick chase a targ
 void recalculateMotion();
 void recalculateDelay();
 void currentPosToStorage(byte cursor);
-
+void reportPositionToSerial();
 
 void setup()
 {
@@ -57,7 +57,7 @@ void setup()
     Serial.print(" ");
     Serial.println(__TIME__);
 
-    lcd.setup( I2C_LCD_ADDRESS );
+    lcd.setup(I2C_LCD_ADDRESS);
     // ignore the wchar_t / %S warning, arduino uses %S for Progmem instead
     snprintf(strbuf, sizeof strbuf, "%S", romTexts[5]);
     lcd.print(0, 0, strbuf);
@@ -172,7 +172,7 @@ void setup()
 
     if (false)
     {
-        Serial.println( F("Debug Mode"));
+        Serial.println(F("Debug Mode"));
         initDebug();
     }
 
@@ -216,6 +216,17 @@ void loop()
 
     default:
         break;
+    }
+}
+
+void reportPositionToSerial()
+{
+    for (byte i = 0; i < NUM_AXIS; i++)
+    {
+        Serial.print(F("AXIS "));
+        Serial.print(i);
+        Serial.print(F(" = "));
+        Serial.println(currentpos[i]);
     }
 }
 
@@ -373,6 +384,8 @@ void doButtonInput()
         { // STOP has priority
             setTargetForBrake();
             modus = MODE_BRAKE;
+            Serial.println(F("Disable Motion"));
+            reportPositionToSerial();
             lcd.print(0, 0, txt_stop);
             return;
         }
@@ -380,6 +393,8 @@ void doButtonInput()
         {
             recalculateDelay();
             recalculateMotion();
+            Serial.println(F("Enable Motion"));
+            reportPositionToSerial();
             startFromHalt();
             modus = MODE_RUN;
             lcd.print(0, 0, txt_moving);
