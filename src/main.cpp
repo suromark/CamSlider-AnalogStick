@@ -155,18 +155,24 @@ void setup()
 
     lcd.clear();
     // ignore the wchar_t / %S warning, arduino uses %S for Progmem instead
-    snprintf(strbuf, sizeof strbuf, "%S", romTexts[2]);
-    lcd.print(0, 0, strbuf);
-
-    // ignore the wchar_t / %S warning, arduino uses %S for Progmem instead
     snprintf(strbuf, sizeof strbuf, "%S", romTexts[3]);
     lcd.print(1, 0, strbuf);
 
 #ifdef ARDUINO_AVR_NANO
+
+    // ignore the wchar_t / %S warning, arduino uses %S for Progmem instead
+    snprintf(strbuf, sizeof strbuf, "%S", romTexts[2]);
+    lcd.print(0, 0, strbuf);
+
     setUpInterruptForNano();
 #endif
 
 #ifdef ARDUINO_NodeMCU_32S
+
+    // ignore the wchar_t / %S warning, arduino uses %S for Progmem instead
+    snprintf(strbuf, sizeof strbuf, "%S", romTexts[10]);
+    lcd.print(0, 0, strbuf);
+
     setUpInterruptForESP32();
 #endif
 

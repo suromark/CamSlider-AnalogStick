@@ -192,7 +192,7 @@ byte panelMode = 5;
 PROGMEM const char romTexts[][17] = {
     "Exit < T0 > SET ", // 0
     "Exit < T1 > SET ", // 1
-    "CamSlider  ready", // 2
+    "CamSlider   NANO", // 2
     "< Turn > or Push", // 3
     "Stick Center Cal", // 4
     "RELEASE JOYSTICK", // 5
@@ -200,4 +200,6 @@ PROGMEM const char romTexts[][17] = {
     "Push to select  ", // 7
     "Position stored ", // 8
     "New mode active ", // 9
+    "CamSlider  ESP32", // 10
+
 };
