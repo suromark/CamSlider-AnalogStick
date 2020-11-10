@@ -1,12 +1,12 @@
 #include "Arduino.h"
 
 volatile struct motor_pin motor_pins[NUM_AXIS] = {
-    {25, 33, LOW, HIGH},
-    {27, 26, LOW, HIGH},
-    {12, 14, LOW, HIGH}};
+    {25, 26, LOW, HIGH},
+    {27, 14, LOW, HIGH},
+    {12, 13, LOW, HIGH}};
 extern volatile motor_pin motor_pins[]; // make global
 
-uint8_t outPins[] = {33, 25, 26, 27, 14, 12};
+uint8_t outPins[] = {25, 26, 27, 14, 12, 13};
 extern uint8_t outPins[]; // make global
 
 uint8_t stickPins[] = {34, 35, 32}; // Mapping of inputs to Axis X, Y, Z

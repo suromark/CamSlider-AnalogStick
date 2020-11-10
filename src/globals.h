@@ -7,8 +7,8 @@
 
 struct motor_pin
 {
-    uint8_t pin_step;  // Direction-Pins
-    uint8_t pin_dir; // Step-Pins
+    uint8_t pin_dir;  // Direction-Pins
+    uint8_t pin_step; // Step-Pins
     uint8_t lvl_forw; // Forward-Direction level
     uint8_t lvl_back; // Backward-Direction level
 };
