@@ -6,6 +6,9 @@
   * Arduino Nano or clone
   * ESP32 breakout board e.g. Doit Devkit
 
+
+![ESP32 prototype](/_pictures/IMG_20201110_231206_web.jpg)
+
 ## Hardware used:
 
 ### Input:
