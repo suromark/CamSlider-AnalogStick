@@ -1,7 +1,7 @@
 # Camera Slider with stepper motor drive and analog stick control
 
 * Using Bresenham multi-dimensional as illustrated at http://members.chello.at/easyfilter/bresenham.html
-* Analog-Stick-Version - No auto-range at startup. All positions are user responsibility. 
+* Analog-Stick-Version - No auto-range at startup. No endstops. NO SAFETY. All positions and motions are user responsibility. 
 * Microcontrollers supported: 
   * Arduino Nano or clone
   * ESP32 breakout board e.g. Doit Devkit
@@ -30,6 +30,7 @@
 * e.g. MINEBEA 17PM-K077BP01CN (cheap, rather low power consumption, 10.2 Volts nominal, max. 300 mA but works fine for this purpose)
 
 ### wiring @todo
+* see included PDF for schematics
 * perfboard sample pictures (incomplete) see: https://www.instagram.com/p/CFacepfKM1g/
 
 ## Menu structure (rotation/push encoder button)
