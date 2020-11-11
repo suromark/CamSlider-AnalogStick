@@ -13,6 +13,7 @@ uint8_t stickPins[] = {34, 35, 32}; // Mapping of inputs to Axis X, Y, Z
 extern uint8_t stickPins[];         // make global
 
 #define ANALOG_RANGE 4096
+#define MY_STICK_DEAD 128 // size of the no-motion deadband zone around the center; 
 
 /* input pins */
 

@@ -137,7 +137,7 @@ void setup()
     stepDelay = 60;
     tickerLimit = stepDelay;
     tickerNow = 0;
-    modus = MODE_STOP;
+    mainMode = MODE_STOP;
     motionPatternSelect = MOPA_STICK;
     motionPatternActive = MOPA_STICK;
 
@@ -205,7 +205,7 @@ void loop()
 
     doButtonInput();
 
-    switch (modus)
+    switch (mainMode)
     {
     case MODE_RUN:
         runNormal();
@@ -316,7 +316,7 @@ void runBrake()
 {
     if (targetReached)
     {
-        modus = MODE_STOP;
+        mainMode = MODE_STOP;
         setTargetToPositionItem(posCursor);
         recalculateMotion();
         panelMode = PM_DELAYSET;
@@ -386,10 +386,10 @@ void doButtonInput()
     if (buttonState[BUTTONSTATE_STASTOP] != BUTTON_PRESS_NONE)
     {
 
-        if (modus == MODE_RUN)
+        if (mainMode == MODE_RUN)
         { // STOP has priority
             setTargetForBrake();
-            modus = MODE_BRAKE;
+            mainMode = MODE_BRAKE;
             Serial.println(F("Disable Motion"));
             reportPositionToSerial();
             lcd.print(0, 0, txt_stop);
@@ -402,7 +402,7 @@ void doButtonInput()
             Serial.println(F("Enable Motion"));
             reportPositionToSerial();
             startFromHalt();
-            modus = MODE_RUN;
+            mainMode = MODE_RUN;
             lcd.print(0, 0, txt_moving);
         }
     }
@@ -461,7 +461,7 @@ void initDebug()
     {
         positions[1][j] = 1000;
     }
-    modus = MODE_RUN;
+    mainMode = MODE_RUN;
     motionPatternActive = MOPA_PINGPONG;
 
     startFromHalt();
@@ -779,7 +779,7 @@ void startFromHalt()
 */
 void newPreview(int previewIndex)
 {
-    modus = MODE_PREVIEW;
+    mainMode = MODE_PREVIEW;
 
     if (setTargetToPositionItem(previewIndex))
     {
@@ -1188,7 +1188,7 @@ void recalculateMotion()
 
 void recalculateDelay()
 {
-    switch (modus)
+    switch (mainMode)
     {
     case MODE_PREVIEW:
         tickerLimit = 0;

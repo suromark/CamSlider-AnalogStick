@@ -28,8 +28,8 @@ struct motor_pin
 /* motion related variables */
 
 #define numOfPoints 2 // number of storable positions: 0 = start, 1 = end (for now)
-byte modus;           // overall operation mode
-extern byte modus;
+byte mainMode;           // overall operation mode
+extern byte mainMode;
 
 uint16_t posCursor; // points to currently active positions[] value
 extern uint16_t posCursor;
@@ -48,7 +48,6 @@ extern long volatile targetpos[NUM_AXIS]; // make global
 /* analog input / joystick control */
 
 #define MY_STICK_USED 3  // how many analog inputs to use
-#define MY_STICK_DEAD 64 // size of the no-motion deadband zone around the center; 7 % left/right
 
 
 int stickInputRaw[MY_STICK_USED];  // storage for raw analog values read
