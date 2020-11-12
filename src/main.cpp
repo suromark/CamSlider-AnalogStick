@@ -4,17 +4,6 @@
 
 #include "myLCD.h"
 
-#ifdef ARDUINO_AVR_NANO
-#include "interruptCodeNano.h"
-#endif
-
-#ifdef ARDUINO_NodeMCU_32S
-#include "interruptCodeESP32.h"
-#endif
-
-myLCD lcd;
-
-#define countof(a) (sizeof(a) / sizeof(a[0])) // matrix rows calculator
 
 /* functions */
 
@@ -45,6 +34,21 @@ void recalculateMotion();
 void recalculateDelay();
 void currentPosToStorage(byte cursor);
 void reportPositionToSerial();
+
+/* device-specific */
+
+#ifdef ARDUINO_AVR_NANO
+#include "interruptCodeNano.h"
+#endif
+
+#ifdef ARDUINO_NodeMCU_32S
+#include "interruptCodeESP32.h"
+#include "extra_esp32.h"
+#endif
+
+myLCD lcd;
+
+#define countof(a) (sizeof(a) / sizeof(a[0])) // matrix rows calculator
 
 void setup()
 {
@@ -91,7 +95,7 @@ void setup()
 
     for (int i = 0; i < NUM_AXIS; i++)
     {
-        currentpos[i] = 0; // startpos = 0
+        currentpos[i] = 0;     // startpos = 0
         manualOverride[i] = 0; // no manual override on boot
     }
 
@@ -174,6 +178,8 @@ void setup()
 
 #ifdef ARDUINO_NodeMCU_32S
 
+    setupExtra();
+
     // ignore the wchar_t / %S warning, arduino uses %S for Progmem instead
     snprintf(strbuf, sizeof strbuf, "%S", romTexts[10]);
     lcd.print(0, 0, strbuf);
@@ -181,7 +187,7 @@ void setup()
     setUpInterruptForESP32();
 #endif
 
-    if (true)
+    if (false)
     {
         Serial.println(F("Debug Mode"));
         initDebug();
@@ -209,6 +215,10 @@ void loop()
     checkEncoder();
 
     doButtonInput();
+
+#ifdef ARDUINO_NodeMCU_32S
+    loopExtra();
+#endif
 
     switch (mainMode)
     {
