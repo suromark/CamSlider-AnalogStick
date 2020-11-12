@@ -6,18 +6,25 @@
 #define MY_OCR_DIVIDER 2 // Arduino Nano specific: Base trigger of output compare register, i.e. every N increments of Timer1 do the interrupt routine with speed/accel/step evaluation
 // if it's too low, it'll cause interrupt overlaps and skips - experiment with this and the prescaler value in the interrupt definition!
 // also the slowdown logic needs to be scaled to match the frequency of steps ...
-#define MIN_SAFE_SPEED 3 // never below 2! Experiment with this vs the ocr_divider, it sets the maximum step speed by defining a minimum amount of delay loops; if the motor stalls it's too low
 
-#define INTERRUPTS_PER_SECOND 20833 // theoretical should be 31250, but stopwatch says it's 66 % of that ...?
+#define MIN_SAFE_SPEED 3
+// never below 2! Experiment with this vs the interrupt prescalers,
+// it sets the maximum step speed by defining a minimum amount of delay loops
+// if the motor stalls at top speed then you know it's too low
+// this defines the minimum amount of interrupts required before another step is taken
+// since at tickerNow = 0 -> raise step signal,
+// tickerNow = 1 -> clear step signal,
+// tickerNow = 2 ... -> wait for delay to end, then reset tickerNow to zero and start over
 
+#define INTERRUPTS_PER_SECOND 20833
+// theoretical should be 31250, but stopwatch says it's 66 % of that ...?
+// possibly due to Min_safe_speed involved?
 
 long platform_specific_forecast()
 {
     /* calculate remaining runtime from remaining steps / steps per second  */
     return (MIN_SAFE_SPEED + tickerLimit) * stepstodo / INTERRUPTS_PER_SECOND;
 }
-
-
 
 void setUpInterruptForNano()
 {
@@ -69,6 +76,11 @@ ISR(TIMER1_COMPA_vect)
     {
         for (int i = 0; i < NUM_AXIS; i++)
         {
+            if (manualOverride[i])
+            {
+                continue;
+            }
+
             digitalWrite(motor_pins[i].pin_step, LOW); // always pull down Step signal after 2 timer loop
         }
     }
@@ -131,6 +143,11 @@ ISR(TIMER1_COMPA_vect)
 
         for (int i = 0; i < NUM_AXIS; i++)
         {
+            if (manualOverride[i])
+            {
+                continue;
+            }
+
             bresenham[i] -= steps[i];
             if (bresenham[i] < 0) // time for a step
             {

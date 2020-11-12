@@ -1,26 +1,34 @@
 #ifndef interruptCode_h
 #define interruptCode_h
 
-#define MIN_SAFE_SPEED 3 // never below 2! Experiment with this vs the interrupt prescalers, it sets the maximum step speed by defining a minimum amount of delay loops; if the motor stalls it's too low
+#define MIN_SAFE_SPEED 7
+// never below 2! Experiment with this vs the interrupt prescalers,
+// it sets the maximum step speed by defining a minimum amount of delay loops
+// if the motor stalls or skips at top speed then you know it's too low
+// this defines the minimum amount of interrupts required before another step is taken
+// since at tickerNow = 0 -> raise step signal,
+// tickerNow = 1 -> clear step signal,
+// tickerNow = 2 ... -> wait for delay to end, then reset tickerNow to zero and start over
 
-#define INTERRUPTS_PER_SECOND 40000
+#define INTERRUPTS_PER_SECOND 50000
+// this is for calculating the "remaining time" display;
 
 #include <Arduino.h>
 
 void IRAM_ATTR oneCycle();
 
-
 hw_timer_t *timer = NULL;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 
-
-
+/*
+gets called during setup()
+*/
 void setUpInterruptForESP32()
 {
-    pinMode(2, OUTPUT);               // onboard LED pulsing
-    timer = timerBegin(0, 800, true); // 80 Mhz downscale to 100,000 ticks/second
+    pinMode(2, OUTPUT);              // onboard LED pulsing
+    timer = timerBegin(0, 80, true); // 80 Mhz downscale to 1 Megaticks/second
     timerAttachInterrupt(timer, &oneCycle, true);
-    timerAlarmWrite(timer, 5, true); // call every 5th timer step = 20k /second
+    timerAlarmWrite(timer, 20, true); // call every N-th timer step, 50k /second
     timerAlarmEnable(timer);
 }
 
@@ -54,6 +62,11 @@ void IRAM_ATTR oneCycle()
         {
             for (int i = 0; i < NUM_AXIS; i++)
             {
+                if (manualOverride[i])
+                {
+                    continue;
+                }
+
                 digitalWrite(motor_pins[i].pin_step, LOW); // always pull down Step signal after 2 timer loop
             }
         }
@@ -78,7 +91,7 @@ void IRAM_ATTR oneCycle()
         Time for another step calculation?
         */
 
-        if (tickerNow >= MIN_SAFE_SPEED + tickerLimit + (closingin >> 1) + (takingoff >> 5))
+        if (tickerNow >= MIN_SAFE_SPEED + tickerLimit + (closingin >> 1) + (takingoff >> 4))
         {
 
             tickerNow = 0; // restart the counter
@@ -116,6 +129,11 @@ void IRAM_ATTR oneCycle()
 
             for (int i = 0; i < NUM_AXIS; i++)
             {
+                if (manualOverride[i])
+                {
+                    continue;
+                }
+
                 bresenham[i] -= steps[i];
                 if (bresenham[i] < 0) // time for a step
                 {

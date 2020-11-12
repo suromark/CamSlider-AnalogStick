@@ -2,9 +2,7 @@
 
 #define NUM_AXIS 3 // how many motors to drive
 
-// #define I2C_LCD_ADDRESS 0x27 // all my previous 1602 I2C bridge chips use this
-#define I2C_LCD_ADDRESS 0x3f // guess what? the new display uses this one
-
+// dir, step, lvl_forw, lvl_back
 struct motor_pin
 {
     uint8_t pin_dir;  // Direction-Pins
@@ -77,14 +75,6 @@ extern uint16_t volatile stepDelayStep; // used globally
 unsigned long theTick = 0;    // millis() buffer
 extern unsigned long theTick; // used globally
 
-/* texts */
-
-char strbuf[17];      // LCD lineout buffer; 16 chars + x00
-extern char strbuf[]; // used globally
-
-char txt_stop[] = "****  STOP  ****";
-char txt_moving[] = "**** MOVING ****";
-
 uint16_t volatile tickerNow;        // internal counter, increments in interrupt, resets as it reaches curTicker. At ticker = 0 the STEP is pulled high, at ticker = 1 it's pulled low again
 extern uint16_t volatile tickerNow; // declare global
 
@@ -111,6 +101,9 @@ extern long volatile bresenham[NUM_AXIS]; // make global
 
 long volatile stepsmax, stepstodo;
 extern long volatile stepsmax, stepstodo; // make global
+
+byte volatile manualOverride[NUM_AXIS];
+extern byte volatile manualOverride[NUM_AXIS];
 
 /* input pins to set to pullup */
 
@@ -188,6 +181,11 @@ byte mainmenu_option = 0;
 
 byte panelMode = 5;
 
+/* texts */
+
+char strbuf[17];      // LCD lineout buffer; 16 chars + x00
+extern char strbuf[]; // used globally
+
 PROGMEM const char romTexts[][17] = {
     "Exit < T0 > SET ", // 0
     "Exit < T1 > SET ", // 1
@@ -200,5 +198,6 @@ PROGMEM const char romTexts[][17] = {
     "Position stored ", // 8
     "New mode active ", // 9
     "CamSlider  ESP32", // 10
-
+    "****  STOP  ****", // 11
+    "**** MOVING ****", // 12
 };

@@ -57,7 +57,11 @@ void setup()
     Serial.print(" ");
     Serial.println(__TIME__);
 
-    lcd.setup(I2C_LCD_ADDRESS);
+    if (!lcd.setup(0x27))
+    {                    // all my previous 1602 I2C bridge chips use this
+        lcd.setup(0x3f); // but on mk2 I found some display uses this one
+    }
+
     // ignore the wchar_t / %S warning, arduino uses %S for Progmem instead
     snprintf(strbuf, sizeof strbuf, "%S", romTexts[5]);
     lcd.print(0, 0, strbuf);
@@ -88,6 +92,7 @@ void setup()
     for (int i = 0; i < NUM_AXIS; i++)
     {
         currentpos[i] = 0; // startpos = 0
+        manualOverride[i] = 0; // no manual override on boot
     }
 
     /* calibrate analog input center (assumes that on power-up stick will be at center) */
@@ -176,7 +181,7 @@ void setup()
     setUpInterruptForESP32();
 #endif
 
-    if (false)
+    if (true)
     {
         Serial.println(F("Debug Mode"));
         initDebug();
@@ -392,7 +397,9 @@ void doButtonInput()
             mainMode = MODE_BRAKE;
             Serial.println(F("Disable Motion"));
             reportPositionToSerial();
-            lcd.print(0, 0, txt_stop);
+            // ignore the wchar_t / %S warning, arduino uses %S for Progmem instead
+            snprintf(strbuf, sizeof strbuf, "%S", romTexts[11]); // stop
+            lcd.print(0, 0, strbuf);
             return;
         }
         else
@@ -403,7 +410,9 @@ void doButtonInput()
             reportPositionToSerial();
             startFromHalt();
             mainMode = MODE_RUN;
-            lcd.print(0, 0, txt_moving);
+            // ignore the wchar_t / %S warning, arduino uses %S for Progmem instead
+            snprintf(strbuf, sizeof strbuf, "%S", romTexts[12]); // moving
+            lcd.print(0, 0, strbuf);
         }
     }
 
@@ -542,7 +551,7 @@ void mopa_stick()
         return;
     }
 
-    nextMicroTick = nowMicroTick + 150 + (motionPatternActive == MOPA_STICK_SLOW ? 1350 : 0); // this is more precise than the coarse millis()
+    nextMicroTick = nowMicroTick + 100 + (motionPatternActive == MOPA_STICK_SLOW ? 1350 : 0); // this is more precise than the coarse millis()
 
     // always clear the steps pins
 

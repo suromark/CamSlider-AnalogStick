@@ -5,7 +5,7 @@
 
 myLCD::myLCD()
 {
-    _adrlcd = 0; // Default LCD module base address on I2C bus; 
+    _adrlcd = 0; // Default LCD module base address on I2C bus;
 }
 /*
 
@@ -42,7 +42,7 @@ bool myLCD::check_i2c(uint8_t adr)
     }
 }
 
-void myLCD::setup(uint8_t adr)
+bool myLCD::setup(uint8_t adr)
 {
 
     _lcd = new LiquidCrystal_I2C(adr, 16, 2); // if no LCD detected, this will never be called
@@ -66,6 +66,11 @@ void myLCD::setup(uint8_t adr)
         _lcd->backlight();
         _lcd->home();
         _lcd->createChar(3, myarrow);
+        return true;
+    }
+    else
+    {
+        return false;
     }
 }
 

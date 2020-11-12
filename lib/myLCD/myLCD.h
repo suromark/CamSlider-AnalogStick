@@ -13,7 +13,7 @@ class myLCD {
     public:
     myLCD();
     LiquidCrystal_I2C* _lcd;
-    void setup( uint8_t adr ); // setup i2c LCD at I2C adress adr
+    bool setup( uint8_t adr ); // setup i2c LCD at I2C adress adr
     void lighton();
     void lightoff();
     void clear();

@@ -1,9 +1,10 @@
 #include "Arduino.h"
 
+// dir, step, lvl_forw, lvl_back
 volatile struct motor_pin motor_pins[NUM_AXIS] = {
-    {8, 7, LOW, HIGH},
-    {10, 9, LOW, HIGH},
-    {12, 11, LOW, HIGH}};
+    {7, 8, LOW, HIGH},
+    {9, 10, LOW, HIGH},
+    {11, 12, LOW, HIGH}};
 extern volatile motor_pin motor_pins[]; // make global
 
 uint8_t outPins[] = {7, 8, 9, 10, 11, 12};
