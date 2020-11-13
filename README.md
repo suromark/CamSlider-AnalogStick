@@ -22,7 +22,7 @@
 * set step delay to VALUE loops per step: `sd<VALUE>` e.g. `sd60`
 * drive to current target: `g`
 * store target VALUE for axis N in memory SLOT: `s<N>,<VALUE>,<SLOT>` e.g. `s2,13231,0`
-* drive to target slot M: `t<SLOT>` e.g. `t0` (overwrites the volatile target values defined by a or r!)
+* drive to target SLOT: `t<SLOT>` e.g. `t0` (overwrites the volatile target values defined by a or r!)
 
 ## Hardware used:
 
