@@ -13,13 +13,16 @@
 * Android: use e.g. Serial Bluetooth Terminal or RoboRemo to connect/communicate
 
 ### List of commands
-* set current position as zero reference: zero
-* set target of axis N to absolute position: a<N>,<VALUE> e.g. a0,-5131
-* move target of axis N by relative VALUE: r<N>,<VALUE> e.g. r1,-318
-* set step delay to VALUE loops per step: sd<VALUE> e.g. sd60
-* drive to current target: g
-* store target VALUE for axis N in memory SLOT: s<N>,<VALUE>,<SLOT> e.g. s2,13231,0
-* drive to target slot M: t<SLOT> (overwrites the volatile target values defined by a or r!)
+* end all commands with newline 
+* one command per line
+* reply will show the current coordinates and target 
+* set current position as zero reference: `zero`
+* set target of axis N to absolute position: `a<N>,<VALUE>` e.g. `a0,-5131`
+* move target of axis N by relative VALUE: `r<N>,<VALUE>` e.g. `r1,-318`
+* set step delay to VALUE loops per step: `sd<VALUE>` e.g. `sd60`
+* drive to current target: `g`
+* store target VALUE for axis N in memory SLOT: `s<N>,<VALUE>,<SLOT>` e.g. `s2,13231,0`
+* drive to target slot M: `t<SLOT>` e.g. `t0` (overwrites the volatile target values defined by a or r!)
 
 ## Hardware used:
 
