@@ -3,7 +3,7 @@
 #include "globals.h"
 
 #include "myLCD.h"
-
+myLCD lcd;
 
 /* functions */
 
@@ -46,7 +46,6 @@ void reportPositionToSerial();
 #include "extra_esp32.h"
 #endif
 
-myLCD lcd;
 
 #define countof(a) (sizeof(a) / sizeof(a[0])) // matrix rows calculator
 
@@ -178,11 +177,11 @@ void setup()
 
 #ifdef ARDUINO_NodeMCU_32S
 
-    setupExtra();
-
     // ignore the wchar_t / %S warning, arduino uses %S for Progmem instead
     snprintf(strbuf, sizeof strbuf, "%S", romTexts[10]);
     lcd.print(0, 0, strbuf);
+
+    setupExtra();
 
     setUpInterruptForESP32();
 #endif

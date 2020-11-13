@@ -37,6 +37,10 @@ bool setupExtra()
              point[0], point[1], point[2], point[3], point[4], point[5]);
 
     SerialBT.begin(devicename); // device name
+
+    snprintf(strbuf, sizeof strbuf, "%S", romTexts[13]);
+    lcd.print(0, 0, strbuf);
+    return true;
 }
 
 void loopExtra()
@@ -76,46 +80,115 @@ void loopExtra()
         if (oneChar == '\n')
         {
             insertpoint = 0;
+            SerialBT.println("RCVD");
             parseForCommand(inbuffer);
-            SerialBT.println("RECV");
         }
     }
 }
 
 void parseForCommand(char *payload)
 {
+    static char echobuffer[64];
+    static char pattern[32];
     int hits = 0;
-    long theValue = 0;
-    hits = sscanf(payload, "x%d", &theValue); // Set X target
-    if (hits == 1)
+    int understood = 0;
+    long theLong = 0;
+    int theInt = 0; // storage for an int parameter
+
+    /* check for commands - format: 
+    target absolute: a<AXIS>,<VALUE> e.g. a0,-123 
+    target relative: r<AXIS>,<VALUE> e.g. r0,-123 
+    target store: s<AXIS>,<VALUE>,<SLOT> e.g. s2,5000,0 
+    step delay: sd<VALUE>
+    run to current target: g
+    run to stored target <N>: t<N>
+    */
+    for (byte i = 0; i < NUM_AXIS; i++)
     {
-        targetpos[0] = theValue;
+        snprintf(pattern, sizeof pattern, "a%d,%%d", i);
+        hits = sscanf(payload, pattern, &theLong);
+        if (hits == 1)
+        {
+            targetpos[i] = theLong;
+            SerialBT.println(F("ABS POS"));
+            understood = 1;
+        }
+        snprintf(pattern, sizeof pattern, "r%d,%%d", i);
+        hits = sscanf(payload, pattern, &theLong);
+        if (hits == 1)
+        {
+            targetpos[i] = targetpos[i] + theLong;
+            SerialBT.println(F("REL POS"));
+            understood = 1;
+        }
+        snprintf(pattern, sizeof pattern, "s%d,%%d,%%u", i);
+        hits = sscanf(payload, pattern, &theLong, &theInt);
+        if (hits == 2 && theInt >= 0 && theInt < numOfPoints)
+        {
+            positions[theInt][i] = theLong;
+            SerialBT.println(F("SET STORAGE"));
+            understood = 1;
+        }
     }
-    hits = sscanf(payload, "y%d", &theValue); // Set Y target
-    if (hits == 1)
+
+    if (strcmp("zero\n", payload) == 0)
     {
-        targetpos[1] = theValue;
-    }
-    hits = sscanf(payload, "z%d", &theValue); // Set Z target
-    if (hits == 1)
-    {
-        targetpos[2] = theValue;
-    }
-    hits = sscanf(payload, "g%u", &theValue); // Go with Delay value
-    if (hits == 1)
-    {
-        SerialBT.println("EXEC");
-        stepDelay = theValue;
-        recalculateDelay();
-        recalculateMotion();
-        startFromHalt();
-    }
-    if (strcmp("zero", payload) == 0)
-    {
+        understood = 1;
         for (byte i = 0; i < NUM_AXIS; i++)
         {
             currentpos[i] = 0;
         }
-        SerialBT.println("ZERO");
+        SerialBT.println(F("CUR.POS NOW ZERO"));
+    }
+
+    if (strcmp("g\n", payload) == 0)
+    {
+        understood = 1;
+        SerialBT.println(F("START"));
+        recalculateDelay();
+        recalculateMotion();
+        startFromHalt();
+    }
+
+    hits = sscanf(payload, "sd%u", &theLong); // set with Delay value
+    if (hits == 1)
+    {
+        understood = 1;
+        stepDelay = (unsigned int)theLong;
+        SerialBT.println(F("SET STEP DELAY"));
+        recalculateDelay();
+        recalculateMotion();
+    }
+
+    hits = sscanf(payload, "t%u", &theInt); // go to stored target <N>
+    if (hits == 1 && theInt >= 0 && theInt < numOfPoints)
+    {
+        understood = 1;
+        SerialBT.println(F("GOTO PRESET"));
+        if (setTargetToPositionItem(theInt))
+        {
+            recalculateDelay();
+            recalculateMotion();
+            startFromHalt();
+        }
+    }
+
+    /* diagnostic echo */
+
+    if (understood)
+    {
+        SerialBT.println("+OK");
+        snprintf(echobuffer, sizeof echobuffer, "%S", romTexts[14] );
+        lcd.print(0,0,echobuffer);
+    }
+    else
+    {
+        SerialBT.println("-ERR");
+    }
+
+    for (byte i = 0; i < NUM_AXIS; i++)
+    {
+        snprintf(echobuffer, sizeof echobuffer, "a%x,%d,%d", i, targetpos[i], currentpos[i]);
+        SerialBT.println(echobuffer);
     }
 }

@@ -200,4 +200,6 @@ PROGMEM const char romTexts[][17] = {
     "CamSlider  ESP32", // 10
     "****  STOP  ****", // 11
     "**** MOVING ****", // 12
+    "CamSlider BT RDY", // 13
+    "CamSlider BT CMD", // 14
 };
