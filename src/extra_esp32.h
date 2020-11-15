@@ -48,6 +48,15 @@ void loopExtra()
     static char oneChar;
     static char inbuffer[256];
     static int insertpoint = 0;
+    static unsigned long btKeepalive = 0;
+
+    /*
+    if( millis() - btKeepalive > 1000 ) {
+        SerialBT.println("READY");
+        btKeepalive = millis();
+    }
+*/
+
     if (Serial.available())
     {
         oneChar = Serial.read();
@@ -94,10 +103,12 @@ void parseForCommand(char *payload)
     int understood = 0;
     long theLong = 0;
     int theInt = 0; // storage for an int parameter
+    byte run_now = 0;
 
     /* check for commands - format: 
     target absolute: a<AXIS>,<VALUE> e.g. a0,-123 
     target relative: r<AXIS>,<VALUE> e.g. r0,-123 
+    nudge current position with current step delay (overwrites all of current target!) : n<AXIS>,<VALUE>
     target store: s<AXIS>,<VALUE>,<SLOT> e.g. s2,5000,0 
     step delay: sd<VALUE>
     run to current target: g
@@ -105,6 +116,24 @@ void parseForCommand(char *payload)
     */
     for (byte i = 0; i < NUM_AXIS; i++)
     {
+        snprintf(pattern, sizeof pattern, "n%d,%%d", i);
+        hits = sscanf(payload, pattern, &theLong);
+        if (hits == 1)
+        {
+            for (byte j = 0; j < NUM_AXIS; j++)
+            {
+                targetpos[j] = currentpos[j];
+                if (j == i)
+                {
+                    targetpos[j] += theLong;
+                }
+            }
+            SerialBT.println(F("NUDGE_GO"));
+            understood = 1;
+            run_now = 1;
+            break;
+        }
+
         snprintf(pattern, sizeof pattern, "a%d,%%d", i);
         hits = sscanf(payload, pattern, &theLong);
         if (hits == 1)
@@ -112,6 +141,7 @@ void parseForCommand(char *payload)
             targetpos[i] = theLong;
             SerialBT.println(F("ABS POS"));
             understood = 1;
+            break;
         }
         snprintf(pattern, sizeof pattern, "r%d,%%d", i);
         hits = sscanf(payload, pattern, &theLong);
@@ -120,6 +150,7 @@ void parseForCommand(char *payload)
             targetpos[i] = targetpos[i] + theLong;
             SerialBT.println(F("REL POS"));
             understood = 1;
+            break;
         }
         snprintf(pattern, sizeof pattern, "s%d,%%d,%%u", i);
         hits = sscanf(payload, pattern, &theLong, &theInt);
@@ -128,6 +159,7 @@ void parseForCommand(char *payload)
             positions[theInt][i] = theLong;
             SerialBT.println(F("SET STORAGE"));
             understood = 1;
+            break;
         }
     }
 
@@ -141,7 +173,7 @@ void parseForCommand(char *payload)
         SerialBT.println(F("CUR.POS NOW ZERO"));
     }
 
-    if (strcmp("g\n", payload) == 0)
+    if (strcmp("g\n", payload) == 0 || run_now)
     {
         understood = 1;
         SerialBT.println(F("START"));
@@ -158,6 +190,14 @@ void parseForCommand(char *payload)
         SerialBT.println(F("SET STEP DELAY"));
         recalculateDelay();
         recalculateMotion();
+    }
+
+    hits = sscanf(payload, "set%u", &theInt); // save target into Slot <N>
+    if (hits == 1 && theInt >= 0 && theInt < numOfPoints)
+    {
+        understood = 1;
+        SerialBT.println(F("SAVE TO PRESET"));
+        currentPosToStorage(theInt);
     }
 
     hits = sscanf(payload, "t%u", &theInt); // go to stored target <N>
@@ -178,8 +218,8 @@ void parseForCommand(char *payload)
     if (understood)
     {
         SerialBT.println("+OK");
-        snprintf(echobuffer, sizeof echobuffer, "%S", romTexts[14] );
-        lcd.print(0,0,echobuffer);
+        snprintf(echobuffer, sizeof echobuffer, "%S", romTexts[14]);
+        lcd.print(0, 0, echobuffer);
     }
     else
     {

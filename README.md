@@ -9,19 +9,26 @@
 
 ![ESP32 prototype](/_pictures/IMG_20201110_231206_web.jpg)
 
-## ESP32 - optional Bluetooth commands
-* Android: use e.g. Serial Bluetooth Terminal or RoboRemo to connect/communicate
+## ESP32 - optional Bluetooth command parser / remote
+* Android: use e.g. Serial Bluetooth Terminal or RoboRemo / RoboRemoSPP to connect/communicate
+  * Free version: https://play.google.com/store/apps/details?id=com.hardcodedjoy.roboremofree
+  * Sufficient version: https://play.google.com/store/apps/details?id=com.hardcodedjoy.roboremospp
+  * sample UI config file: see _docs/camslider.interface (import into App)
 
 ### List of commands
 * end all commands with newline 
 * one command per line
-* reply will show the current coordinates and target 
+* reply will show the current coordinates and volatile target 
 * set current position as zero reference: `zero`
+* nudge current position of axis N by relative VALUE: `n<N>,<VALUE>` e.g. `n2,-123`
+  * nudge sets volatile target to current position, adjusts axis N then executes run with current delay value
+  * nudge can also be called during motion, repeatedly
 * set target of axis N to absolute position: `a<N>,<VALUE>` e.g. `a0,-5131`
 * move target of axis N by relative VALUE: `r<N>,<VALUE>` e.g. `r1,-318`
 * set step delay to VALUE loops per step: `sd<VALUE>` e.g. `sd60`
 * drive to current target: `g`
 * store target VALUE for axis N in memory SLOT: `s<N>,<VALUE>,<SLOT>` e.g. `s2,13231,0`
+* store current position in memory SLOT: `set<SLOT>` e.g. `set0`
 * drive to target SLOT: `t<SLOT>` e.g. `t0` (overwrites the volatile target values defined by a or r!)
 
 ## Hardware used:
