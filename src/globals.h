@@ -201,5 +201,5 @@ PROGMEM const char romTexts[][17] = {
     "****  STOP  ****", // 11
     "**** MOVING ****", // 12
     "CamSlider BT RDY", // 13
-    "CamSlider BT CMD", // 14
+    "CamSlider CMD = ", // 14
 };

@@ -18,7 +18,7 @@
 ### List of commands
 * end all commands with newline 
 * one command per line
-* reply will show the current coordinates and volatile target 
+* report current position and volatile target: `pos`
 * set current position as zero reference: `zero`
 * nudge current position of axis N by relative VALUE: `n<N>,<VALUE>` e.g. `n2,-123`
   * nudge sets volatile target to current position, adjusts axis N then executes run with current delay value

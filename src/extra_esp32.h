@@ -100,20 +100,12 @@ void parseForCommand(char *payload)
     static char echobuffer[64];
     static char pattern[32];
     int hits = 0;
-    int understood = 0;
+    byte understood = 0;
     long theLong = 0;
     int theInt = 0; // storage for an int parameter
     byte run_now = 0;
 
-    /* check for commands - format: 
-    target absolute: a<AXIS>,<VALUE> e.g. a0,-123 
-    target relative: r<AXIS>,<VALUE> e.g. r0,-123 
-    nudge current position with current step delay (overwrites all of current target!) : n<AXIS>,<VALUE>
-    target store: s<AXIS>,<VALUE>,<SLOT> e.g. s2,5000,0 
-    step delay: sd<VALUE>
-    run to current target: g
-    run to stored target <N>: t<N>
-    */
+    /* check for commands - see readme.md for syntax */
     for (byte i = 0; i < NUM_AXIS; i++)
     {
         snprintf(pattern, sizeof pattern, "n%d,%%d", i);
@@ -129,7 +121,7 @@ void parseForCommand(char *payload)
                 }
             }
             SerialBT.println(F("NUDGE_GO"));
-            understood = 1;
+            understood = 'N';
             run_now = 1;
             break;
         }
@@ -140,7 +132,7 @@ void parseForCommand(char *payload)
         {
             targetpos[i] = theLong;
             SerialBT.println(F("ABS POS"));
-            understood = 1;
+            understood = 'A';
             break;
         }
         snprintf(pattern, sizeof pattern, "r%d,%%d", i);
@@ -149,7 +141,7 @@ void parseForCommand(char *payload)
         {
             targetpos[i] = targetpos[i] + theLong;
             SerialBT.println(F("REL POS"));
-            understood = 1;
+            understood = 'R';
             break;
         }
         snprintf(pattern, sizeof pattern, "s%d,%%d,%%u", i);
@@ -158,14 +150,14 @@ void parseForCommand(char *payload)
         {
             positions[theInt][i] = theLong;
             SerialBT.println(F("SET STORAGE"));
-            understood = 1;
+            understood = 'S';
             break;
         }
     }
 
     if (strcmp("zero\n", payload) == 0)
     {
-        understood = 1;
+        understood = 'Z';
         for (byte i = 0; i < NUM_AXIS; i++)
         {
             currentpos[i] = 0;
@@ -173,9 +165,19 @@ void parseForCommand(char *payload)
         SerialBT.println(F("CUR.POS NOW ZERO"));
     }
 
+    if (strcmp("pos\n", payload) == 0)
+    {
+        understood = 'P';
+        for (byte i = 0; i < NUM_AXIS; i++)
+        {
+            snprintf(echobuffer, sizeof echobuffer, "a%x,%d,%d", i, targetpos[i], currentpos[i]);
+            SerialBT.println(echobuffer);
+        }
+    }
+
     if (strcmp("g\n", payload) == 0 || run_now)
     {
-        understood = 1;
+        understood = 'G';
         SerialBT.println(F("START"));
         recalculateDelay();
         recalculateMotion();
@@ -185,7 +187,7 @@ void parseForCommand(char *payload)
     hits = sscanf(payload, "sd%u", &theLong); // set with Delay value
     if (hits == 1)
     {
-        understood = 1;
+        understood = 'D';
         stepDelay = (unsigned int)theLong;
         SerialBT.println(F("SET STEP DELAY"));
         recalculateDelay();
@@ -195,7 +197,7 @@ void parseForCommand(char *payload)
     hits = sscanf(payload, "set%u", &theInt); // save target into Slot <N>
     if (hits == 1 && theInt >= 0 && theInt < numOfPoints)
     {
-        understood = 1;
+        understood = 's';
         SerialBT.println(F("SAVE TO PRESET"));
         currentPosToStorage(theInt);
     }
@@ -203,7 +205,7 @@ void parseForCommand(char *payload)
     hits = sscanf(payload, "t%u", &theInt); // go to stored target <N>
     if (hits == 1 && theInt >= 0 && theInt < numOfPoints)
     {
-        understood = 1;
+        understood = 'T';
         SerialBT.println(F("GOTO PRESET"));
         if (setTargetToPositionItem(theInt))
         {
@@ -219,16 +221,11 @@ void parseForCommand(char *payload)
     {
         SerialBT.println("+OK");
         snprintf(echobuffer, sizeof echobuffer, "%S", romTexts[14]);
+        echobuffer[15] = understood;
         lcd.print(0, 0, echobuffer);
     }
     else
     {
         SerialBT.println("-ERR");
-    }
-
-    for (byte i = 0; i < NUM_AXIS; i++)
-    {
-        snprintf(echobuffer, sizeof echobuffer, "a%x,%d,%d", i, targetpos[i], currentpos[i]);
-        SerialBT.println(echobuffer);
     }
 }
